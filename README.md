@@ -1,10 +1,10 @@
-# Sharplook - Local Marketplace Website
+# LookReal - Local Marketplace Website
 
-A stunning, modern marketing website for Sharplook mobile app built with Next.js, TypeScript, and Tailwind CSS.
+A stunning, modern marketing website for LookReal mobile app built with Next.js, TypeScript, and Tailwind CSS.
 
-## 🎯 About Sharplook
+## 🎯 About LookReal
 
-Sharplook is a comprehensive local marketplace platform that connects users with trusted vendors for services and products. The app features:
+LookReal is a comprehensive local marketplace platform that connects users with trusted vendors for services and products. The app features:
 
 - **Service Bookings** - Schedule appointments with local service providers
 - **Product Marketplace** - Browse and purchase from local vendors
@@ -45,7 +45,7 @@ Sharplook is a comprehensive local marketplace platform that connects users with
 1. Extract the zip file
 2. Navigate to the project directory:
 ```bash
-cd sharplook-website
+cd lookreal-website
 ```
 
 3. Install dependencies:
@@ -80,7 +80,7 @@ npm run start
 ## 📁 Project Structure
 
 ```
-sharplook-website/
+lookreal-website/
 ├── app/
 │   ├── globals.css       # Global styles, animations, and Tailwind
 │   ├── layout.tsx        # Root layout with SEO metadata
@@ -143,7 +143,7 @@ Add your app screenshots, logos, and other images to the `public` directory and 
 
 ## 📱 Features Showcased
 
-The website highlights all operational Sharplook features:
+The website highlights all operational LookReal features:
 
 ✅ **Marketplace**
 - Product ordering
@@ -218,7 +218,7 @@ The website is optimized for performance:
 
 ## 📄 License
 
-This project is provided as-is for Sharplook's use.
+This project is provided as-is for LookReal's use.
 
 ## 🤝 Support
 
@@ -229,8 +229,8 @@ For questions about:
 
 ## 📞 Contact
 
-For Sharplook app support or inquiries, visit the website's contact section.
+For LookReal app support or inquiries, visit the website's contact section.
 
 ---
 
-Built with ❤️ for Sharplook
+Built with ❤️ for LookReal

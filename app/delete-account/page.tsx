@@ -30,7 +30,7 @@ export default function AccountDeletion() {
             <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary-light rounded-xl flex items-center justify-center font-display text-xl">
               S
             </div>
-            <span className="text-2xl font-display font-bold">Sharplook</span>
+            <span className="text-2xl font-display font-bold">LookReal</span>
           </a>
           <a href="/" className="text-sm text-slate-400 hover:text-primary transition-colors">
             ← Back to Home
@@ -51,7 +51,7 @@ export default function AccountDeletion() {
               Account <span className="text-gradient">Deletion</span>
             </h1>
             <p className="text-xl text-slate-300 max-w-2xl mx-auto">
-              We're sorry to see you go. Follow the steps below to request deletion of your Sharplook account and associated data.
+              We're sorry to see you go. Follow the steps below to request deletion of your LookReal account and associated data.
             </p>
           </motion.div>
 
@@ -77,7 +77,7 @@ export default function AccountDeletion() {
                   <div className="flex-shrink-0 w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center text-sm font-bold">1</div>
                   <div>
                     <h3 className="font-semibold mb-1">In-App Deletion</h3>
-                    <p className="text-sm text-slate-400">Open the Sharplook app → Go to Profile → Settings → Account → Delete Account</p>
+                    <p className="text-sm text-slate-400">Open the LookReal app → Go to Profile → Settings → Account → Delete Account</p>
                   </div>
                 </div>
 
@@ -85,7 +85,7 @@ export default function AccountDeletion() {
                   <div className="flex-shrink-0 w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center text-sm font-bold">2</div>
                   <div>
                     <h3 className="font-semibold mb-1">Email Request</h3>
-                    <p className="text-sm text-slate-400">Send an email to <a href="mailto:support@sharplook.com" className="text-primary hover:underline">support@sharplook.com</a> with subject "Account Deletion Request"</p>
+                    <p className="text-sm text-slate-400">Send an email to <a href="mailto:support@lookreal.com" className="text-primary hover:underline">support@lookreal.com</a> with subject "Account Deletion Request"</p>
                   </div>
                 </div>
 
@@ -203,7 +203,7 @@ export default function AccountDeletion() {
                     className="w-full bg-slate-900/50 border border-primary/20 rounded-xl px-4 py-3 focus:outline-none focus:border-primary transition-colors"
                   />
                   <p className="text-xs text-slate-400 mt-2">
-                    Must match the email associated with your Sharplook account
+                    Must match the email associated with your LookReal account
                   </p>
                 </div>
 
@@ -243,7 +243,7 @@ export default function AccountDeletion() {
                 </button>
 
                 <p className="text-center text-xs text-slate-400">
-                  By submitting, you confirm that you want to permanently delete your Sharplook account
+                  By submitting, you confirm that you want to permanently delete your LookReal account
                 </p>
               </form>
             )}
@@ -262,7 +262,7 @@ export default function AccountDeletion() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a
-                href="mailto:support@sharplook.com"
+                href="mailto:support@lookreal.com"
                 className="inline-flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 px-6 py-3 rounded-xl transition-colors"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

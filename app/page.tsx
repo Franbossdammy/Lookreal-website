@@ -29,7 +29,7 @@ export default function Home() {
             <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary-light rounded-xl flex items-center justify-center font-display text-xl">
               S
             </div>
-            <span className="text-2xl font-display font-bold">Sharplook</span>
+            <span className="text-2xl font-display font-bold">LookReal</span>
           </motion.div>
           <div className="hidden md:flex gap-8 items-center">
             <a href="#features" className="hover:text-primary transition-colors font-medium">Features</a>
@@ -260,7 +260,7 @@ export default function Home() {
               Everything You Need in <span className="text-gradient">One App</span>
             </h2>
             <p className="text-xl text-slate-300 max-w-3xl mx-auto">
-              From booking services to shopping products, Sharplook provides all the tools you need for seamless local commerce
+              From booking services to shopping products, LookReal provides all the tools you need for seamless local commerce
             </p>
           </motion.div>
 
@@ -333,7 +333,7 @@ export default function Home() {
               <span className="text-sm font-semibold text-primary-light">SIMPLE PROCESS</span>
             </div>
             <h2 className="text-5xl md:text-6xl font-display font-bold mb-6">
-              How <span className="text-gradient">Sharplook</span> Works
+              How <span className="text-gradient">LookReal</span> Works
             </h2>
           </motion.div>
 
@@ -395,7 +395,7 @@ export default function Home() {
                   Your Security is <span className="text-gradient">Our Priority</span>
                 </h2>
                 <p className="text-lg text-slate-300 mb-8 leading-relaxed">
-                  We've built Sharplook with security at its core. From escrow payments to verified vendors, every feature is designed to protect you.
+                  We've built LookReal with security at its core. From escrow payments to verified vendors, every feature is designed to protect you.
                 </p>
                 <div className="space-y-4">
                   {[
@@ -468,7 +468,7 @@ export default function Home() {
                 Ready to Start?
               </h2>
               <p className="text-xl text-slate-200 mb-12 max-w-2xl mx-auto">
-                Join thousands of users and vendors already using Sharplook. Available now on iOS and Android.
+                Join thousands of users and vendors already using LookReal. Available now on iOS and Android.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-12">
@@ -527,7 +527,7 @@ export default function Home() {
                 <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary-light rounded-xl flex items-center justify-center font-display text-xl">
                   S
                 </div>
-                <span className="text-2xl font-display font-bold">Sharplook</span>
+                <span className="text-2xl font-display font-bold">LookReal</span>
               </div>
               <p className="text-slate-400 text-sm leading-relaxed">
                 Your trusted local marketplace for services and products. Connect, book, and shop with confidence.
@@ -569,7 +569,7 @@ export default function Home() {
 
           <div className="pt-8 border-t border-primary/10 flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="text-sm text-slate-400">
-              © 2026 Sharplook. All rights reserved.
+              © 2026 LookReal. All rights reserved.
             </div>
             
             <div className="flex gap-4">

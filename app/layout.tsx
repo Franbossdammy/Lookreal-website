@@ -2,11 +2,11 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Sharplook - Connect, Book & Shop with Local Vendors',
+  title: 'LookReal - Connect, Book & Shop with Local Vendors',
   description: 'Discover and book services, shop products, and connect with trusted local vendors. Features bookings, marketplace, escrow payments, and real-time communication.',
   keywords: ['marketplace', 'vendor booking', 'local services', 'product ordering', 'escrow payment', 'mobile app', 'iOS', 'Android'],
   openGraph: {
-    title: 'Sharplook - Connect, Book & Shop with Local Vendors',
+    title: 'LookReal - Connect, Book & Shop with Local Vendors',
     description: 'Discover and book services, shop products, and connect with trusted local vendors.',
     type: 'website',
   },
