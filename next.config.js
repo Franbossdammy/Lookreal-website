@@ -4,6 +4,8 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  // Generate the share page so hosting can rewrite to it
+  trailingSlash: true,
 }
 
 module.exports = nextConfig

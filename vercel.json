@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/share/vendor/:id", "destination": "/share" },
+    { "source": "/share/product/:id", "destination": "/share" }
+  ]
+}

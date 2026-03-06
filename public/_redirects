@@ -1,0 +1,3 @@
+/share/vendor/*  /share/  200
+/share/product/*  /share/  200
+/*    /index.html   200

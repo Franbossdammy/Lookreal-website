@@ -1,0 +1,14 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "X83US4MGG2.com.techtrove.sharplook",
+        "paths": [
+          "/share/*",
+          "/vendors/*"
+        ]
+      }
+    ]
+  }
+}
