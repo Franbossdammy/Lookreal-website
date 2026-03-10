@@ -32,7 +32,9 @@ export default function Home() {
           <div className="hidden md:flex gap-8 items-center">
             <a href="#features" className="hover:text-primary transition-colors font-medium">Features</a>
             <a href="#how-it-works" className="hover:text-primary transition-colors font-medium">How It Works</a>
+            <a href="#gallery" className="hover:text-primary transition-colors font-medium">Gallery</a>
             <a href="#download" className="hover:text-primary transition-colors font-medium">Download</a>
+            <a href="/contact" className="hover:text-primary transition-colors font-medium">Contact</a>
             <motion.a
               href="#download"
               whileHover={{ scale: 1.05 }}
@@ -383,6 +385,87 @@ export default function Home() {
         </div>
       </section>
 
+      {/* App Screenshots Gallery */}
+      <section id="gallery" className="relative py-32 px-6">
+        <div className="container mx-auto max-w-7xl">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="text-center mb-20"
+          >
+            <div className="inline-block bg-primary/10 border border-primary/30 px-4 py-2 rounded-full mb-6">
+              <span className="text-sm font-semibold text-primary-light">SEE IT IN ACTION</span>
+            </div>
+            <h2 className="text-5xl md:text-6xl font-display font-bold mb-6">
+              Experience <span className="text-gradient">LookReal</span>
+            </h2>
+            <p className="text-xl text-slate-300 max-w-3xl mx-auto">
+              Take a look at how the app works — from browsing vendors to booking services and shopping products
+            </p>
+          </motion.div>
+
+          {/* App Screenshots */}
+          <div className="mb-20">
+            <h3 className="text-2xl font-display font-bold mb-8 text-center">App Screenshots</h3>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {[
+                'IMG_0163.png', 'IMG_0164.png', 'IMG_0165.png', 'IMG_0166.png',
+                'IMG_0167.png', 'IMG_0168.png', 'IMG_0169.png', 'IMG_0170.png',
+                'IMG_0137.png', 'IMG_0138.png', 'IMG_0139.png', 'IMG_0140.png',
+              ].map((img, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.05, duration: 0.5 }}
+                  whileHover={{ y: -8, scale: 1.03 }}
+                  className="group relative rounded-3xl overflow-hidden border-2 border-primary/20 hover:border-primary/50 transition-all duration-300 shadow-lg hover:shadow-primary/20"
+                >
+                  <img
+                    src={`/assets/screenshots/${img}`}
+                    alt={`LookReal app screenshot ${i + 1}`}
+                    className="w-full h-auto object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                </motion.div>
+              ))}
+            </div>
+          </div>
+
+          {/* Vendor & Product Images */}
+          <div>
+            <h3 className="text-2xl font-display font-bold mb-8 text-center">Vendors & Products</h3>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {[
+                '1011451721.jpg', '1011451723.jpg', '1011451734.jpg', '1011451736.jpg',
+                '1011451738.jpg', '1011451740.jpg', '1011451742.jpg', '1011451744.jpg',
+                '1011451746.jpg', '1011451748.jpg', '1011451750.jpg',
+              ].map((img, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.05, duration: 0.5 }}
+                  whileHover={{ y: -8, scale: 1.03 }}
+                  className="group relative aspect-square rounded-3xl overflow-hidden border-2 border-primary/20 hover:border-primary/50 transition-all duration-300 shadow-lg hover:shadow-primary/20"
+                >
+                  <img
+                    src={`/assets/gallery/${img}`}
+                    alt={`Vendor product ${i + 1}`}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Trust & Security */}
       <section className="relative py-32 px-6">
         <div className="container mx-auto max-w-6xl">
@@ -556,7 +639,7 @@ export default function Home() {
                 <li><a href="#" className="hover:text-primary transition-colors">About</a></li>
                 <li><a href="#" className="hover:text-primary transition-colors">Blog</a></li>
                 <li><a href="#" className="hover:text-primary transition-colors">Careers</a></li>
-                <li><a href="#" className="hover:text-primary transition-colors">Contact</a></li>
+                <li><a href="/contact" className="hover:text-primary transition-colors">Contact</a></li>
               </ul>
             </div>
 
