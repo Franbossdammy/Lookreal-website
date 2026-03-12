@@ -81,7 +81,9 @@ export default function Home() {
 
               <div className="flex flex-col sm:flex-row gap-4 mb-12">
                 <motion.a
-                  href="#download"
+                  href="https://apps.apple.com/ng/app/lookreal/id6749508043"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   whileHover={{ scale: 1.05, y: -2 }}
                   whileTap={{ scale: 0.95 }}
                   className="bg-gradient-to-r from-primary to-primary-light px-8 py-4 rounded-full font-bold text-lg hover:shadow-2xl hover:shadow-primary/50 transition-all inline-flex items-center justify-center gap-3"
@@ -91,9 +93,11 @@ export default function Home() {
                   </svg>
                   Download for iOS
                 </motion.a>
-                
+
                 <motion.a
-                  href="#download"
+                  href="https://play.google.com/store/apps/details?id=com.inuud.sharplook"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   whileHover={{ scale: 1.05, y: -2 }}
                   whileTap={{ scale: 0.95 }}
                   className="bg-slate-800/80 backdrop-blur-sm border-2 border-primary/40 px-8 py-4 rounded-full font-bold text-lg hover:bg-slate-700 hover:shadow-2xl hover:shadow-primary/30 transition-all inline-flex items-center justify-center gap-3"
@@ -554,7 +558,7 @@ export default function Home() {
 
               <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-12">
                 <motion.a
-                  href="https://apps.apple.com"
+                  href="https://apps.apple.com/ng/app/lookreal/id6749508043"
                   target="_blank"
                   rel="noopener noreferrer"
                   whileHover={{ scale: 1.05, y: -5 }}
@@ -571,7 +575,7 @@ export default function Home() {
                 </motion.a>
 
                 <motion.a
-                  href="https://play.google.com"
+                  href="https://play.google.com/store/apps/details?id=com.inuud.sharplook"
                   target="_blank"
                   rel="noopener noreferrer"
                   whileHover={{ scale: 1.05, y: -5 }}
@@ -612,11 +616,11 @@ export default function Home() {
                 Your trusted local marketplace for services and products. Connect, book, and shop with confidence.
               </p>
               <div className="space-y-2">
-                <a href="mailto:support@lookreal.app" className="flex items-center gap-2 text-sm text-slate-400 hover:text-primary transition-colors">
+                <a href="mailto:support@lookreal.beauty" className="flex items-center gap-2 text-sm text-slate-400 hover:text-primary transition-colors">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
                   support@lookreal.beauty
                 </a>
-                <a href="tel:+1234567890" className="flex items-center gap-2 text-sm text-slate-400 hover:text-primary transition-colors">
+                <a href="tel:+2347066965448" className="flex items-center gap-2 text-sm text-slate-400 hover:text-primary transition-colors">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
                   +2347066965448
                 </a>

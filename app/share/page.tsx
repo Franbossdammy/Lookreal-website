@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 
 const SCHEME = 'LookReal'
-const APP_STORE_URL = 'https://apps.apple.com/app/lookreal/id6740804522'
+const APP_STORE_URL = 'https://apps.apple.com/ng/app/lookreal/id6749508043'
 const PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=com.inuud.sharplook'
 
 function getShareInfo() {
