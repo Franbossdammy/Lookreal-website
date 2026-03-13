@@ -417,7 +417,7 @@ export default function Home() {
               {[
                 'IMG_0163.png', 'IMG_0164.png', 'IMG_0165.png', 'IMG_0166.png',
                 'IMG_0167.png', 'IMG_0168.png', 'IMG_0169.png', 'IMG_0170.png',
-                'IMG_0137.png', 'IMG_0138.png', 'IMG_0139.png', 'IMG_0140.png',
+                
               ].map((img, i) => (
                 <motion.div
                   key={i}
@@ -445,8 +445,7 @@ export default function Home() {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {[
                 '1011451721.jpg', '1011451723.jpg', '1011451734.jpg', '1011451736.jpg',
-                '1011451738.jpg', '1011451740.jpg', '1011451742.jpg', '1011451744.jpg',
-                '1011451746.jpg', '1011451748.jpg', '1011451750.jpg',
+                
               ].map((img, i) => (
                 <motion.div
                   key={i}
