@@ -34,6 +34,7 @@ export default function Home() {
             <a href="#how-it-works" className="hover:text-primary transition-colors font-medium">How It Works</a>
             <a href="#gallery" className="hover:text-primary transition-colors font-medium">Gallery</a>
             <a href="#download" className="hover:text-primary transition-colors font-medium">Download</a>
+            <a href="/blog" className="hover:text-primary transition-colors font-medium">Blog</a>
             <a href="/contact" className="hover:text-primary transition-colors font-medium">Contact</a>
             <motion.a
               href="#download"
