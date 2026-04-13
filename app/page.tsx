@@ -34,8 +34,12 @@ export default function Home() {
             <a href="#how-it-works" className="hover:text-primary transition-colors font-medium">How It Works</a>
             <a href="#gallery" className="hover:text-primary transition-colors font-medium">Gallery</a>
             <a href="#download" className="hover:text-primary transition-colors font-medium">Download</a>
-            <a href="/blog" className="hover:text-primary transition-colors font-medium">Blog</a>
+            <a href="https://blog.lookreal.beauty" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors font-medium">Blog</a>
             <a href="/contact" className="hover:text-primary transition-colors font-medium">Contact</a>
+            <a href="/challenge" className="relative font-semibold text-[#E91E8C] hover:text-primary transition-colors">
+              Challenge
+              <span className="absolute -top-2 -right-3 bg-[#E91E8C] text-white text-[9px] font-bold px-1 rounded-full leading-4">NEW</span>
+            </a>
             <motion.a
               href="#download"
               whileHover={{ scale: 1.05 }}
@@ -641,7 +645,7 @@ export default function Home() {
               <h4 className="font-bold mb-4">Company</h4>
               <ul className="space-y-2 text-sm text-slate-400">
                 <li><a href="#" className="hover:text-primary transition-colors">About</a></li>
-                <li><a href="#" className="hover:text-primary transition-colors">Blog</a></li>
+                <li><a href="https://blog.lookreal.beauty" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">Blog</a></li>
                 <li><a href="#" className="hover:text-primary transition-colors">Careers</a></li>
                 <li><a href="/contact" className="hover:text-primary transition-colors">Contact</a></li>
               </ul>

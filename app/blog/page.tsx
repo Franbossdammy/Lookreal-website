@@ -126,7 +126,7 @@ export default function BlogPage() {
           </Link>
           <div className="hidden md:flex gap-8 items-center">
             <Link href="/#features" className="hover:text-primary transition-colors font-medium">Features</Link>
-            <Link href="/blog" className="text-primary font-medium">Blog</Link>
+            <Link href="https://blog.lookreal.beauty" className="text-primary font-medium">Blog</Link>
             <Link href="/contact" className="hover:text-primary transition-colors font-medium">Contact</Link>
             <motion.a
               href="/#download"
