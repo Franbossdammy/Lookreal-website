@@ -129,7 +129,7 @@ function IdeaCarousel() {
 }
 
 /* ── Constants ── */
-const DEADLINE = '2026-05-15T23:59:00+01:00'
+const DEADLINE = '2026-05-10T23:59:00+01:00'
 const WHATSAPP_GROUP = 'https://chat.whatsapp.com/DpCjCwqhleaJnnduUSBg2P?mode=gi_t'
 const WHATSAPP_MSG = encodeURIComponent('Hey! LookReal is running the Booked & Glowing Challenge — a creator competition where you can win up to ₦250,000 just for sharing your beauty experience on TikTok and Instagram. Check it out: https://lookreal.beauty/challenge')
 
@@ -160,6 +160,7 @@ const RULES: [string, string][] = [
   ['Caption', 'Minimum 50 words — tell your story'],
   ['Age & Location', '18+ and based in Lagos, Nigeria'],
   ['Eligibility', 'Open to all genders, all service categories'],
+  ['Follow', 'Follow LookReal App on Instagram (@lookreal) and TikTok (@lookrealapp)'],
 ]
 
 const SERVICES = [
@@ -253,9 +254,9 @@ function InterestForm({ onSuccess, showToast }: { onSuccess: () => void; showToa
       </motion.div>
 
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}>
-        <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-white/50">Content Niche <span className="text-primary">*</span></label>
+        <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-white/50">Preferred Services <span className="text-primary">*</span></label>
         <select value={form.contentNiche} onChange={e => set('contentNiche', e.target.value)} className={`${selectCls} ${errors.contentNiche ? 'border-red-500/60' : ''}`}>
-          <option value="" className="bg-slate-900">Select your niche</option>
+          <option value="" className="bg-slate-900">Select your preferred service</option>
           {CONTENT_NICHES.map(o => <option key={o} value={o} className="bg-slate-900">{o}</option>)}
         </select>
         {errors.contentNiche && <p className="text-red-400 text-xs mt-1">{errors.contentNiche}</p>}
@@ -466,7 +467,7 @@ export default function ChallengePage() {
           {/* Stats */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
             className="grid grid-cols-3 gap-3 max-w-sm mx-auto">
-            {[{ val: '₦500k', label: 'Total Prize Pool' }, { val: '21 Days', label: 'Campaign Window' }, { val: 'TikTok + IG', label: 'Post on Both' }].map(s => (
+            {[{ val: '₦500k', label: 'Total Prize Pool' }, { val: '28 Days', label: 'Campaign Window' }, { val: 'TikTok + IG', label: 'Post on Both' }].map(s => (
               <div key={s.label} className="bg-white/[0.04] border border-white/[0.06] backdrop-blur-sm rounded-2xl py-4 px-2">
                 <p className="text-base sm:text-lg font-bold text-primary">{s.val}</p>
                 <p className="text-[10px] text-white/40 mt-1 leading-tight">{s.label}</p>
@@ -530,6 +531,37 @@ export default function ChallengePage() {
 
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-center mt-10">
             <button onClick={openModal} className="text-primary text-sm font-semibold hover:underline">Ready to compete? Register your interest →</button>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ══ TIMELINE ══ */}
+      <section className="relative z-10 py-24 px-4 sm:px-6">
+        <div className="max-w-3xl mx-auto">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-center mb-14">
+            <p className="text-primary uppercase tracking-widest text-xs font-bold mb-3">Important Dates</p>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-display font-black mb-3">Challenge Timeline</h2>
+          </motion.div>
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}
+            className="relative flex flex-col gap-0">
+            <div className="absolute left-[27px] top-8 bottom-8 w-px bg-gradient-to-b from-primary/60 via-primary/30 to-primary/10 hidden sm:block" />
+            {[
+              { date: 'April 20, 2026', label: 'Challenge Starts', desc: 'Registrations open. Sponsored credits (first 30 entries) begin.', icon: '🚀', color: 'text-primary border-primary/30 bg-primary/10' },
+              { date: 'May 10, 2026', label: 'Submissions Close', desc: 'All entries must be posted and submitted before midnight WAT.', icon: '🎬', color: 'text-amber-400 border-amber-400/30 bg-amber-400/10' },
+              { date: 'May 17, 2026', label: 'Winners Announced', desc: 'Winners announced on LookReal\'s TikTok and Instagram. All winners notified by DM first.', icon: '🏆', color: 'text-emerald-400 border-emerald-400/30 bg-emerald-400/10' },
+            ].map((item, i) => (
+              <motion.div key={i} variants={fadeUp}
+                className="flex gap-4 sm:gap-6 items-start px-1 py-4">
+                <div className={`w-12 h-12 shrink-0 rounded-2xl border flex items-center justify-center text-xl z-10 ${item.color}`}>
+                  {item.icon}
+                </div>
+                <div className="flex-1 bg-white/[0.03] border border-white/[0.07] rounded-2xl px-5 py-4 hover:border-white/[0.12] transition-colors">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-white/40 mb-1">{item.date}</p>
+                  <h3 className="font-bold text-base mb-1">{item.label}</h3>
+                  <p className="text-sm text-white/55 leading-relaxed">{item.desc}</p>
+                </div>
+              </motion.div>
+            ))}
           </motion.div>
         </div>
       </section>

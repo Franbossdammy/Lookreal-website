@@ -29,7 +29,7 @@ function ResetPasswordContent() {
     if (!/[A-Z]/.test(pwd)) return 'Password must contain at least one uppercase letter.'
     if (!/[a-z]/.test(pwd)) return 'Password must contain at least one lowercase letter.'
     if (!/[0-9]/.test(pwd)) return 'Password must contain at least one number.'
-    if (!/[^A-Za-z0-9]/.test(pwd)) return 'Password must contain at least one special character.'
+    if (!/[@$!%*?&]/.test(pwd)) return 'Password must contain at least one special character (@$!%*?&).'
     return null
   }
 

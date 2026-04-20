@@ -4,7 +4,11 @@
       "Bash(npx next:*)",
       "Bash(npx tsc:*)",
       "Bash(npm run:*)",
-      "Bash(echo \"exit:$?\")"
+      "Bash(echo \"exit:$?\")",
+      "Bash(gh repo:*)",
+      "WebFetch(domain:github.com)",
+      "Read(//c/Users/YungFlash/Downloads/**)",
+      "Read(//c/Users/YungFlash/Desktop/**)"
     ]
   }
 }
