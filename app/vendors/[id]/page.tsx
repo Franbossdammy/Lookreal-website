@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import { notFound } from 'next/navigation'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://sharplook-backend-production.onrender.com'
 const APP_STORE_URL = 'https://apps.apple.com/ng/app/lookreal/id6749508043'
@@ -32,16 +31,31 @@ interface VendorPageData {
 }
 
 async function fetchVendorData(id: string): Promise<VendorPageData | null> {
-  try {
-    const res = await fetch(`${API_URL}/api/v1/users/vendors/${id}`, {
-      next: { revalidate: 300 },
-    })
-    if (!res.ok) return null
-    const json = await res.json()
-    return json.data ?? null
-  } catch {
-    return null
+  // Two attempts — handles Render free-tier cold starts (first req can 503/timeout)
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const controller = new AbortController()
+      const timeout = setTimeout(() => controller.abort(), 15000)
+
+      const res = await fetch(`${API_URL}/api/v1/users/vendors/${id}`, {
+        next: { revalidate: 300 },
+        signal: controller.signal,
+      })
+      clearTimeout(timeout)
+
+      if (res.status === 404) return null          // vendor genuinely doesn't exist
+      if (!res.ok) {
+        if (attempt === 0) continue                 // retry once on server errors
+        return null
+      }
+
+      const json = await res.json()
+      return (json.data as VendorPageData) ?? null
+    } catch {
+      if (attempt === 0) continue                   // retry once on network errors
+    }
   }
+  return null
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
@@ -92,7 +106,45 @@ export default async function VendorPage({ params }: { params: Promise<{ id: str
   const { id } = await params
   const data = await fetchVendorData(id)
 
-  if (!data) notFound()
+  if (!data) {
+    // Show a soft fallback — don't 404, just tell them to use the app
+    return (
+      <main style={{
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #0f0f1a 0%, #1a0a14 50%, #0f0f1a 100%)',
+        fontFamily: "'Outfit', system-ui, sans-serif",
+        color: '#fff',
+        display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24,
+      }}>
+        <div style={{ maxWidth: 400, textAlign: 'center' }}>
+          <div style={{
+            width: 72, height: 72, borderRadius: 20, margin: '0 auto 24px',
+            background: 'linear-gradient(135deg, #D73870, #FF5B96)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 32, fontWeight: 800,
+          }}>L</div>
+          <h1 style={{ fontSize: 22, fontWeight: 800, marginBottom: 10 }}>LookReal</h1>
+          <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 15, marginBottom: 28, lineHeight: 1.6 }}>
+            This vendor profile is available in the LookReal app. Download the app to view and book their services.
+          </p>
+          <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
+            <a href={APP_STORE_URL} style={{
+              display: 'flex', alignItems: 'center', gap: 6,
+              padding: '12px 20px', borderRadius: 12,
+              background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)',
+              color: '#fff', fontWeight: 500, fontSize: 14, textDecoration: 'none',
+            }}>App Store</a>
+            <a href={PLAY_STORE_URL} style={{
+              display: 'flex', alignItems: 'center', gap: 6,
+              padding: '12px 20px', borderRadius: 12,
+              background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)',
+              color: '#fff', fontWeight: 500, fontSize: 14, textDecoration: 'none',
+            }}>Google Play</a>
+          </div>
+        </div>
+      </main>
+    )
+  }
 
   const { vendor, services, stats } = data
   const name = vendor.vendorProfile.businessName
