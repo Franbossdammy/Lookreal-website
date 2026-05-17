@@ -44,7 +44,14 @@ export default function SharePage() {
       window.location.href = deepLink
 
       // After a delay, if still here, user doesn't have the app
-      setTimeout(() => setAttempted(true), 2500)
+      setTimeout(() => {
+        // For vendor profiles, redirect to the web profile page instead of app store
+        if (type === 'vendor' && id) {
+          window.location.replace(`/vendors/${id}`)
+          return
+        }
+        setAttempted(true)
+      }, 2500)
     } else {
       setAttempted(true)
     }
