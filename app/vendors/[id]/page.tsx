@@ -273,48 +273,56 @@ export default async function VendorPage({ params }: { params: Promise<{ id: str
             <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 12, color: 'rgba(255,255,255,0.9)' }}>
               Services
             </h2>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {services.slice(0, 5).map((service) => (
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+              {services.slice(0, 6).map((service) => (
                 <div key={service._id} style={{
                   background: 'rgba(255,255,255,0.05)',
                   border: '1px solid rgba(255,255,255,0.08)',
                   borderRadius: 14,
                   overflow: 'hidden',
                 }}>
-                  {service.images && service.images.length > 0 && (
-                    <img
-                      src={service.images[0]}
-                      alt={service.name}
-                      style={{
-                        width: '100%', height: 160,
-                        objectFit: 'cover', display: 'block',
-                      }}
-                    />
+                  {service.images && service.images.length > 0 ? (
+                    <div style={{ position: 'relative', width: '100%', aspectRatio: '1 / 1' }}>
+                      <img
+                        src={service.images[0]}
+                        alt={service.name}
+                        style={{
+                          position: 'absolute', inset: 0,
+                          width: '100%', height: '100%',
+                          objectFit: 'cover', display: 'block',
+                        }}
+                      />
+                    </div>
+                  ) : (
+                    <div style={{
+                      width: '100%', aspectRatio: '1 / 1',
+                      background: 'rgba(255,255,255,0.04)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>
+                      <span style={{ fontSize: 32 }}>✂️</span>
+                    </div>
                   )}
-                  <div style={{
-                    padding: '14px 16px',
-                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                  }}>
-                    <div>
-                      <div style={{ fontWeight: 600, fontSize: 14 }}>{service.name}</div>
+                  <div style={{ padding: '10px 12px' }}>
+                    <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 4, lineHeight: 1.3 }}>{service.name}</div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 4 }}>
                       {service.duration && (
-                        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', marginTop: 2 }}>
+                        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)' }}>
                           {service.duration} mins
                         </div>
                       )}
-                    </div>
-                    <div style={{
-                      color: '#D73870', fontWeight: 700, fontSize: 15,
-                      background: 'rgba(215,56,112,0.12)', padding: '4px 12px', borderRadius: 8,
-                    }}>
-                      ₦{service.basePrice.toLocaleString()}
+                      <div style={{
+                        color: '#D73870', fontWeight: 700, fontSize: 13,
+                        background: 'rgba(215,56,112,0.12)', padding: '3px 10px', borderRadius: 8,
+                      }}>
+                        ₦{service.basePrice.toLocaleString()}
+                      </div>
                     </div>
                   </div>
                 </div>
               ))}
-              {services.length > 5 && (
-                <p style={{ textAlign: 'center', color: 'rgba(255,255,255,0.4)', fontSize: 13, margin: '4px 0 0' }}>
-                  +{services.length - 5} more services in the app
+              {services.length > 6 && (
+                <p style={{ textAlign: 'center', color: 'rgba(255,255,255,0.4)', fontSize: 13, margin: '4px 0 0', gridColumn: '1 / -1' }}>
+                  +{services.length - 6} more services in the app
                 </p>
               )}
             </div>
