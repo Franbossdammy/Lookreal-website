@@ -26,7 +26,7 @@ interface VendorProfile {
 
 interface VendorPageData {
   vendor: VendorProfile
-  services: Array<{ _id: string; name: string; basePrice: number; duration?: number; description?: string }>
+  services: Array<{ _id: string; name: string; basePrice: number; duration?: number; description?: string; images?: string[] }>
   stats: { totalServices: number; totalReviews: number }
 }
 
@@ -278,22 +278,37 @@ export default async function VendorPage({ params }: { params: Promise<{ id: str
                 <div key={service._id} style={{
                   background: 'rgba(255,255,255,0.05)',
                   border: '1px solid rgba(255,255,255,0.08)',
-                  borderRadius: 14, padding: '14px 16px',
-                  display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                  borderRadius: 14,
+                  overflow: 'hidden',
                 }}>
-                  <div>
-                    <div style={{ fontWeight: 600, fontSize: 14 }}>{service.name}</div>
-                    {service.duration && (
-                      <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', marginTop: 2 }}>
-                        {service.duration} mins
-                      </div>
-                    )}
-                  </div>
+                  {service.images && service.images.length > 0 && (
+                    <img
+                      src={service.images[0]}
+                      alt={service.name}
+                      style={{
+                        width: '100%', height: 160,
+                        objectFit: 'cover', display: 'block',
+                      }}
+                    />
+                  )}
                   <div style={{
-                    color: '#D73870', fontWeight: 700, fontSize: 15,
-                    background: 'rgba(215,56,112,0.12)', padding: '4px 12px', borderRadius: 8,
+                    padding: '14px 16px',
+                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                   }}>
-                    ₦{service.basePrice.toLocaleString()}
+                    <div>
+                      <div style={{ fontWeight: 600, fontSize: 14 }}>{service.name}</div>
+                      {service.duration && (
+                        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', marginTop: 2 }}>
+                          {service.duration} mins
+                        </div>
+                      )}
+                    </div>
+                    <div style={{
+                      color: '#D73870', fontWeight: 700, fontSize: 15,
+                      background: 'rgba(215,56,112,0.12)', padding: '4px 12px', borderRadius: 8,
+                    }}>
+                      ₦{service.basePrice.toLocaleString()}
+                    </div>
                   </div>
                 </div>
               ))}
