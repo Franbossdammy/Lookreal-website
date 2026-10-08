@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://sharplook-backend-production.onrender.com'
 const APP_STORE_URL = 'https://apps.apple.com/ng/app/lookreal/id6749508043'
@@ -31,28 +32,18 @@ interface VendorPageData {
 }
 
 async function fetchVendorData(id: string): Promise<VendorPageData | null> {
-  // Two attempts — handles Render free-tier cold starts (first req can 503/timeout)
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
       const controller = new AbortController()
       const timeout = setTimeout(() => controller.abort(), 15000)
-
-      const res = await fetch(`${API_URL}/api/v1/users/vendors/${id}`, {
-        next: { revalidate: 300 },
-        signal: controller.signal,
-      })
+      const res = await fetch(`${API_URL}/api/v1/users/vendors/${id}`, { next: { revalidate: 300 }, signal: controller.signal })
       clearTimeout(timeout)
-
-      if (res.status === 404) return null          // vendor genuinely doesn't exist
-      if (!res.ok) {
-        if (attempt === 0) continue                 // retry once on server errors
-        return null
-      }
-
+      if (res.status === 404) return null
+      if (!res.ok) { if (attempt === 0) continue; return null }
       const json = await res.json()
       return (json.data as VendorPageData) ?? null
     } catch {
-      if (attempt === 0) continue                   // retry once on network errors
+      if (attempt === 0) continue
     }
   }
   return null
@@ -61,19 +52,11 @@ async function fetchVendorData(id: string): Promise<VendorPageData | null> {
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params
   const data = await fetchVendorData(id)
-
-  if (!data) {
-    return {
-      title: 'Vendor Not Found | LookReal',
-      description: 'This vendor profile could not be found.',
-    }
-  }
-
+  if (!data) return { title: 'Vendor not found | LookReal', description: 'This vendor profile could not be found.' }
   const { vendor } = data
   const name = vendor.vendorProfile.businessName
   const description = vendor.vendorProfile.businessDescription
     || `Book ${name} on LookReal — ${vendor.vendorProfile.vendorType === 'home_service' ? 'Home service' : 'In-shop service'} in ${vendor.vendorProfile.location?.city || 'Nigeria'}.`
-
   return {
     title: `${name} | LookReal`,
     description,
@@ -95,9 +78,14 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 }
 
 function StarRating({ rating }: { rating: number }) {
+  const r = Math.round(rating)
   return (
-    <span style={{ color: '#F59E0B', fontSize: 16, letterSpacing: 2 }}>
-      {'★'.repeat(Math.round(rating))}{'☆'.repeat(5 - Math.round(rating))}
+    <span className="inline-flex items-center gap-0.5">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <svg key={i} className={`w-4 h-4 ${i < r ? 'text-amber-500' : 'text-line'}`} viewBox="0 0 20 20" fill="currentColor">
+          <path d="M10 15.27L16.18 19l-1.64-7.03L20 7.24l-7.19-.61L10 0 7.19 6.63 0 7.24l5.46 4.73L3.82 19z" />
+        </svg>
+      ))}
     </span>
   )
 }
@@ -107,39 +95,21 @@ export default async function VendorPage({ params }: { params: Promise<{ id: str
   const data = await fetchVendorData(id)
 
   if (!data) {
-    // Show a soft fallback — don't 404, just tell them to use the app
     return (
-      <main style={{
-        minHeight: '100vh',
-        background: 'linear-gradient(135deg, #0f0f1a 0%, #1a0a14 50%, #0f0f1a 100%)',
-        fontFamily: "'Outfit', system-ui, sans-serif",
-        color: '#fff',
-        display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24,
-      }}>
-        <div style={{ maxWidth: 400, textAlign: 'center' }}>
-          <div style={{
-            width: 72, height: 72, borderRadius: 20, margin: '0 auto 24px',
-            background: 'linear-gradient(135deg, #D73870, #FF5B96)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 32, fontWeight: 800,
-          }}>L</div>
-          <h1 style={{ fontSize: 22, fontWeight: 800, marginBottom: 10 }}>LookReal</h1>
-          <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 15, marginBottom: 28, lineHeight: 1.6 }}>
+      <main className="min-h-screen bg-canvas text-ink flex items-center justify-center px-5 py-16">
+        <div className="max-w-md w-full text-center">
+          <Link href="/" className="inline-flex items-center justify-center gap-2.5 mb-10 group">
+            <img src="/assets/logo.png" alt="LookReal" className="w-11 h-11 rounded-2xl" />
+          </Link>
+          <h1 className="font-display text-4xl font-light tracking-tightest mb-4">
+            <span className="serif-italic text-primary">look</span>real
+          </h1>
+          <p className="text-ink/60 leading-relaxed mb-8">
             This vendor profile is available in the LookReal app. Download the app to view and book their services.
           </p>
-          <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <a href={APP_STORE_URL} style={{
-              display: 'flex', alignItems: 'center', gap: 6,
-              padding: '12px 20px', borderRadius: 12,
-              background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)',
-              color: '#fff', fontWeight: 500, fontSize: 14, textDecoration: 'none',
-            }}>App Store</a>
-            <a href={PLAY_STORE_URL} style={{
-              display: 'flex', alignItems: 'center', gap: 6,
-              padding: '12px 20px', borderRadius: 12,
-              background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)',
-              color: '#fff', fontWeight: 500, fontSize: 14, textDecoration: 'none',
-            }}>Google Play</a>
+          <div className="flex gap-3 justify-center flex-wrap">
+            <a href={APP_STORE_URL} className="btn-pill btn-ghost">App Store</a>
+            <a href={PLAY_STORE_URL} className="btn-pill btn-ghost">Google Play</a>
           </div>
         </div>
       </main>
@@ -152,168 +122,102 @@ export default async function VendorPage({ params }: { params: Promise<{ id: str
   const deepLink = `LookReal://share/vendor/${id}`
   const whatsappText = encodeURIComponent(`Check out ${name} on LookReal! Book now: ${vendorUrl}`)
   const vendorTypeLabel =
-    vendor.vendorProfile.vendorType === 'home_service' ? 'Home Service'
-    : vendor.vendorProfile.vendorType === 'in_shop' ? 'In-Shop'
-    : 'Home & In-Shop'
+    vendor.vendorProfile.vendorType === 'home_service' ? 'Home service'
+    : vendor.vendorProfile.vendorType === 'in_shop' ? 'In-shop'
+    : 'Home & In-shop'
 
   return (
-    <main style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #0f0f1a 0%, #1a0a14 50%, #0f0f1a 100%)',
-      fontFamily: "'Outfit', system-ui, sans-serif",
-      color: '#fff',
-      padding: '0',
-    }}>
-      {/* Header */}
-      <div style={{
-        padding: '20px 24px',
-        borderBottom: '1px solid rgba(255,255,255,0.08)',
-        display: 'flex',
-        alignItems: 'center',
-        gap: 12,
-      }}>
-        <div style={{
-          width: 36, height: 36, borderRadius: 10,
-          background: 'linear-gradient(135deg, #D73870, #FF5B96)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontWeight: 800, fontSize: 18,
-        }}>L</div>
-        <span style={{ fontWeight: 700, fontSize: 18 }}>LookReal</span>
-      </div>
+    <main className="relative bg-canvas text-ink min-h-screen">
+      <header className="border-b border-line bg-canvas/90 backdrop-blur-xl sticky top-0 z-30">
+        <div className="max-w-3xl mx-auto px-5 py-4 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2.5">
+            <img src="/assets/logo.png" alt="LookReal" className="w-8 h-8 rounded-lg" />
+            <span className="font-display text-lg tracking-tight">lookreal</span>
+          </Link>
+          <a href={deepLink} className="text-sm text-primary ulink font-semibold">Open in app →</a>
+        </div>
+      </header>
 
-      <div style={{ maxWidth: 520, margin: '0 auto', padding: '32px 24px 60px' }}>
-
-        {/* Vendor Avatar + Name */}
-        <div style={{ textAlign: 'center', marginBottom: 32 }}>
+      <section className="max-w-2xl mx-auto px-5 py-10 md:py-14">
+        {/* Avatar + Name */}
+        <div className="text-center mb-10">
           {vendor.avatar ? (
             <img
               src={vendor.avatar}
               alt={name}
-              style={{
-                width: 100, height: 100, borderRadius: '50%',
-                objectFit: 'cover', border: '3px solid #D73870',
-                margin: '0 auto 16px',
-                display: 'block',
-              }}
+              className="w-28 h-28 rounded-full object-cover border-2 border-primary mx-auto mb-5"
             />
           ) : (
-            <div style={{
-              width: 100, height: 100, borderRadius: '50%',
-              background: 'linear-gradient(135deg, #D73870, #FF5B96)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 42, fontWeight: 800, color: 'rgba(255,255,255,0.9)',
-              margin: '0 auto 16px',
-            }}>
+            <div className="w-28 h-28 rounded-full bg-canvas-soft border border-line text-primary font-display text-5xl flex items-center justify-center mx-auto mb-5">
               {name.charAt(0)}
             </div>
           )}
 
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, flexWrap: 'wrap' }}>
-            <h1 style={{ fontSize: 26, fontWeight: 800, margin: 0, letterSpacing: '-0.5px' }}>{name}</h1>
+          <div className="inline-flex items-center gap-2 mb-2 flex-wrap justify-center">
+            <h1 className="font-display text-4xl md:text-5xl font-light tracking-tightest">{name}</h1>
             {vendor.vendorProfile.isVerified && (
-              <span style={{
-                background: 'rgba(16,185,129,0.15)', color: '#10B981',
-                border: '1px solid rgba(16,185,129,0.3)',
-                fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 6,
-              }}>✓ Verified</span>
+              <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-full">✓ Verified</span>
             )}
           </div>
 
-          <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+          <div className="flex items-center justify-center gap-2 mt-3">
             <StarRating rating={vendor.vendorProfile.rating} />
-            <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: 14 }}>
-              {vendor.vendorProfile.rating.toFixed(1)} ({vendor.vendorProfile.totalRatings} reviews)
+            <span className="text-sm text-ink/60">
+              {vendor.vendorProfile.rating.toFixed(1)} <span className="text-ink/40">({vendor.vendorProfile.totalRatings})</span>
             </span>
           </div>
 
-          <div style={{ marginTop: 8, color: 'rgba(255,255,255,0.5)', fontSize: 13, display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <span>📍 {vendor.vendorProfile.location?.city}, {vendor.vendorProfile.location?.state}</span>
-            <span>🏪 {vendorTypeLabel}</span>
-            {vendor.isOnline && <span style={{ color: '#10B981' }}>● Online</span>}
+          <div className="mt-3 flex gap-4 justify-center flex-wrap text-sm text-ink/50">
+            <span>{vendor.vendorProfile.location?.city}, {vendor.vendorProfile.location?.state}</span>
+            <span>·</span>
+            <span>{vendorTypeLabel}</span>
+            {vendor.isOnline && <><span>·</span><span className="text-emerald-600 inline-flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />Online</span></>}
           </div>
         </div>
 
         {/* Stats */}
-        <div style={{
-          display: 'grid', gridTemplateColumns: '1fr 1fr 1fr',
-          gap: 12, marginBottom: 28,
-        }}>
+        <div className="grid grid-cols-3 gap-3 mb-10">
           {[
             { label: 'Bookings', value: vendor.vendorProfile.completedBookings },
             { label: 'Services', value: stats?.totalServices ?? 0 },
             { label: 'Reviews', value: stats?.totalReviews ?? 0 },
           ].map((s) => (
-            <div key={s.label} style={{
-              background: 'rgba(255,255,255,0.06)',
-              border: '1px solid rgba(255,255,255,0.1)',
-              borderRadius: 14, padding: '14px 8px', textAlign: 'center',
-            }}>
-              <div style={{ fontSize: 22, fontWeight: 800 }}>{s.value}</div>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', marginTop: 2 }}>{s.label}</div>
+            <div key={s.label} className="bg-canvas-soft border border-line rounded-2xl py-5 px-3 text-center">
+              <div className="font-display text-2xl md:text-3xl text-ink">{s.value}</div>
+              <div className="text-[10px] text-ink/50 mt-1.5 uppercase tracking-widest">{s.label}</div>
             </div>
           ))}
         </div>
 
         {/* Description */}
         {vendor.vendorProfile.businessDescription && (
-          <div style={{
-            background: 'rgba(255,255,255,0.05)',
-            border: '1px solid rgba(255,255,255,0.08)',
-            borderRadius: 16, padding: 18, marginBottom: 24,
-          }}>
-            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 14, lineHeight: 1.6, margin: 0 }}>
-              {vendor.vendorProfile.businessDescription}
-            </p>
+          <div className="bg-canvas-soft border border-line rounded-3xl p-6 mb-10">
+            <p className="eyebrow mb-3">About</p>
+            <p className="text-ink/70 leading-relaxed">{vendor.vendorProfile.businessDescription}</p>
           </div>
         )}
 
         {/* Services */}
         {services && services.length > 0 && (
-          <div style={{ marginBottom: 28 }}>
-            <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 12, color: 'rgba(255,255,255,0.9)' }}>
-              Services
-            </h2>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+          <div className="mb-10">
+            <p className="eyebrow mb-4">Services</p>
+            <div className="grid grid-cols-2 gap-3">
               {services.slice(0, 6).map((service) => (
-                <div key={service._id} style={{
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(255,255,255,0.08)',
-                  borderRadius: 14,
-                  overflow: 'hidden',
-                }}>
+                <div key={service._id} className="bg-canvas-soft border border-line rounded-2xl overflow-hidden">
                   {service.images && service.images.length > 0 ? (
-                    <div style={{ position: 'relative', width: '100%', aspectRatio: '1 / 1' }}>
-                      <img
-                        src={service.images[0]}
-                        alt={service.name}
-                        style={{
-                          position: 'absolute', inset: 0,
-                          width: '100%', height: '100%',
-                          objectFit: 'cover', display: 'block',
-                        }}
-                      />
+                    <div className="relative w-full aspect-square">
+                      <img src={service.images[0]} alt={service.name} className="absolute inset-0 w-full h-full object-cover" />
                     </div>
                   ) : (
-                    <div style={{
-                      width: '100%', aspectRatio: '1 / 1',
-                      background: 'rgba(255,255,255,0.04)',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    }}>
-                      <span style={{ fontSize: 32 }}>✂️</span>
+                    <div className="w-full aspect-square bg-white border-b border-line flex items-center justify-center">
+                      <span className="font-display text-3xl text-ink/20">◇</span>
                     </div>
                   )}
-                  <div style={{ padding: '10px 12px' }}>
-                    <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 4, lineHeight: 1.3 }}>{service.name}</div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 4 }}>
-                      {service.duration && (
-                        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)' }}>
-                          {service.duration} mins
-                        </div>
-                      )}
-                      <div style={{
-                        color: '#D73870', fontWeight: 700, fontSize: 13,
-                        background: 'rgba(215,56,112,0.12)', padding: '3px 10px', borderRadius: 8,
-                      }}>
+                  <div className="px-3 py-3">
+                    <div className="font-medium text-sm leading-tight line-clamp-2">{service.name}</div>
+                    <div className="mt-2 flex justify-between items-center gap-2">
+                      {service.duration && <div className="text-[10px] text-ink/40 uppercase tracking-wider">{service.duration} min</div>}
+                      <div className="text-primary font-bold text-sm bg-primary/10 px-2.5 py-1 rounded-full">
                         ₦{service.basePrice.toLocaleString()}
                       </div>
                     </div>
@@ -321,109 +225,53 @@ export default async function VendorPage({ params }: { params: Promise<{ id: str
                 </div>
               ))}
               {services.length > 6 && (
-                <p style={{ textAlign: 'center', color: 'rgba(255,255,255,0.4)', fontSize: 13, margin: '4px 0 0', gridColumn: '1 / -1' }}>
-                  +{services.length - 6} more services in the app
+                <p className="col-span-2 text-center text-sm text-ink/40 pt-2">
+                  +{services.length - 6} more in the app
                 </p>
               )}
             </div>
           </div>
         )}
 
-        {/* CTA Section */}
-        <div style={{
-          background: 'rgba(215,56,112,0.08)',
-          border: '1px solid rgba(215,56,112,0.2)',
-          borderRadius: 20, padding: 24, textAlign: 'center', marginBottom: 20,
-        }}>
-          <p style={{ fontSize: 15, fontWeight: 600, marginBottom: 6, color: 'rgba(255,255,255,0.9)' }}>
-            Ready to book {name}?
-          </p>
-          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 20 }}>
-            Open in the LookReal app to book, message, and pay securely.
-          </p>
-
-          {/* Deep link — opens app if installed */}
-          <a
-            href={deepLink}
-            style={{
-              display: 'block', padding: '15px 24px', borderRadius: 14,
-              background: 'linear-gradient(135deg, #D73870, #FF5B96)',
-              color: '#fff', fontWeight: 700, fontSize: 16,
-              textDecoration: 'none', marginBottom: 12,
-              boxShadow: '0 4px 20px rgba(215,56,112,0.35)',
-            }}
-          >
-            Open in LookReal App
+        {/* CTA */}
+        <div className="bg-ink text-white rounded-[2rem] p-8 text-center mb-5">
+          <p className="font-display text-2xl mb-2">Ready to book {name}?</p>
+          <p className="text-white/60 text-sm mb-6">Open in the LookReal app to book, message, and pay securely.</p>
+          <a href={deepLink} className="btn-pill btn-accent w-full mb-3">
+            Open in LookReal app →
           </a>
-
-          {/* App store buttons */}
-          <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
-            <a
-              href={APP_STORE_URL}
-              style={{
-                flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                padding: '11px 16px', borderRadius: 12,
-                background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)',
-                color: '#fff', fontWeight: 500, fontSize: 13, textDecoration: 'none',
-              }}
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
-              </svg>
-              App Store
-            </a>
-            <a
-              href={PLAY_STORE_URL}
-              style={{
-                flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                padding: '11px 16px', borderRadius: 12,
-                background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)',
-                color: '#fff', fontWeight: 500, fontSize: 13, textDecoration: 'none',
-              }}
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M3.18 23.54c.44.58 1.12.69 1.67.38L22.69 12.8c.56-.31.56-1.29 0-1.6L4.85.08c-.55-.31-1.23-.2-1.67.38C3.06.62 3 .82 3 1.03v21.94c0 .21.06.41.18.57zM5 3.04L15.11 12 5 20.96V3.04z"/>
-              </svg>
-              Google Play
-            </a>
+          <div className="grid grid-cols-2 gap-3 mt-3">
+            <a href={APP_STORE_URL} className="btn-pill bg-white/10 text-white hover:bg-white hover:text-ink border border-white/15">App Store</a>
+            <a href={PLAY_STORE_URL} className="btn-pill bg-white/10 text-white hover:bg-white hover:text-ink border border-white/15">Google Play</a>
           </div>
         </div>
 
-        {/* WhatsApp Share */}
+        {/* WhatsApp */}
         <a
           href={`https://wa.me/?text=${whatsappText}`}
           target="_blank"
           rel="noopener noreferrer"
-          style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-            padding: '14px 24px', borderRadius: 14,
-            background: 'rgba(37,211,102,0.1)', border: '1px solid rgba(37,211,102,0.25)',
-            color: '#25D366', fontWeight: 600, fontSize: 15, textDecoration: 'none',
-          }}
+          className="btn-pill w-full bg-[#25D366]/10 text-[#25D366] border border-[#25D366]/20 hover:bg-[#25D366] hover:text-white"
         >
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-          </svg>
           Share on WhatsApp
         </a>
 
         {/* Categories */}
         {vendor.vendorProfile.categories?.length > 0 && (
-          <div style={{ marginTop: 24, display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'center' }}>
+          <div className="mt-10 flex flex-wrap gap-2 justify-center">
             {vendor.vendorProfile.categories.map((cat) => (
-              <span key={cat._id} style={{
-                background: 'rgba(215,56,112,0.12)', border: '1px solid rgba(215,56,112,0.2)',
-                color: '#D73870', fontSize: 12, fontWeight: 600,
-                padding: '4px 12px', borderRadius: 20,
-              }}>{cat.name}</span>
+              <span key={cat._id} className="bg-primary/10 text-primary border border-primary/20 text-xs font-semibold px-3 py-1.5 rounded-full">
+                {cat.name}
+              </span>
             ))}
           </div>
         )}
 
-        <p style={{ textAlign: 'center', color: 'rgba(255,255,255,0.2)', fontSize: 12, marginTop: 32 }}>
-          Powered by <a href="https://lookreal.beauty" style={{ color: 'rgba(215,56,112,0.6)', textDecoration: 'none' }}>LookReal</a>
+        <p className="text-center text-ink/30 text-xs mt-10">
+          Powered by{' '}
+          <a href="https://lookreal.beauty" className="text-primary/70 hover:text-primary ulink">LookReal</a>
         </p>
-      </div>
+      </section>
     </main>
   )
 }

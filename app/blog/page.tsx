@@ -3,6 +3,9 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
+import Nav from '../_components/Nav'
+import Footer from '../_components/Footer'
+import { Reveal, Eyebrow } from '../_components/Primitives'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.lookreal.com'
 
@@ -15,11 +18,7 @@ interface BlogPost {
   category: string
   tags: string[]
   keywords: string[]
-  author: {
-    firstName: string
-    lastName: string
-    avatar?: string
-  }
+  author: { firstName: string; lastName: string; avatar?: string }
   publishedAt: string
   views: number
   likesCount: number
@@ -53,22 +52,18 @@ export default function BlogPage() {
 
   useEffect(() => {
     fetchPosts()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, activeCategory, activeKeyword, searchQuery])
 
   const fetchPosts = async () => {
     setLoading(true)
     try {
-      const params = new URLSearchParams({
-        page: page.toString(),
-        limit: '9',
-      })
+      const params = new URLSearchParams({ page: page.toString(), limit: '9' })
       if (activeCategory) params.set('category', activeCategory)
       if (activeKeyword) params.set('keyword', activeKeyword)
       if (searchQuery) params.set('search', searchQuery)
-
       const res = await fetch(`${API_URL}/api/v1/blog?${params}`)
       const data = await res.json()
-
       if (data.success) {
         setPosts(data.data)
         setPagination(data.meta?.pagination)
@@ -96,259 +91,190 @@ export default function BlogPage() {
     } catch {}
   }
 
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    })
-  }
+  const formatDate = (dateStr: string) =>
+    new Date(dateStr).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+
+  const featured = posts.find((p) => p.isFeatured) || posts[0]
+  const rest = featured ? posts.filter((p) => p._id !== featured._id) : posts
 
   return (
-    <main className="relative bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white min-h-screen">
-      {/* Background */}
-      <div className="fixed inset-0 gradient-mesh pointer-events-none opacity-60" />
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-10 left-10 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[120px] animate-float" />
-        <div className="absolute bottom-20 right-10 w-[600px] h-[600px] bg-primary-light/10 rounded-full blur-[120px] animate-float" style={{ animationDelay: '3s' }} />
-      </div>
+    <main className="relative bg-canvas text-ink min-h-screen">
+      <Nav
+        links={[
+          { href: '/#features', label: 'Features' },
+          { href: '/blog', label: 'Blog' },
+          { href: '/contact', label: 'Contact' },
+        ]}
+      />
 
-      {/* Navigation */}
-      <motion.nav
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-slate-950/80 border-b border-primary/20"
-      >
-        <div className="container mx-auto px-6 py-5 flex justify-between items-center max-w-7xl">
-          <Link href="/" className="flex items-center gap-3">
-            <img src="/assets/logo.png" alt="LookReal Logo" className="w-10 h-10 rounded-xl" />
-            <span className="text-2xl font-display font-bold">LookReal</span>
-          </Link>
-          <div className="hidden md:flex gap-8 items-center">
-            <Link href="/#features" className="hover:text-primary transition-colors font-medium">Features</Link>
-            <Link href="https://blog.lookreal.beauty" className="text-primary font-medium">Blog</Link>
-            <Link href="/contact" className="hover:text-primary transition-colors font-medium">Contact</Link>
-            <motion.a
-              href="/#download"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="bg-gradient-to-r from-primary to-primary-light px-6 py-2.5 rounded-full font-semibold hover:shadow-lg hover:shadow-primary/50 transition-all"
-            >
-              Get Started
-            </motion.a>
-          </div>
-        </div>
-      </motion.nav>
-
-      {/* Hero */}
-      <section className="relative pt-32 pb-16 px-6">
-        <div className="container mx-auto max-w-7xl relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center mb-12"
-          >
-            <h1 className="text-5xl md:text-6xl font-display font-bold mb-4">
-              Our <span className="text-gradient">Blog</span>
+      <section className="relative pt-36 md:pt-44 pb-16 px-6 lg:px-10">
+        <div className="max-w-7xl mx-auto">
+          <Eyebrow>Journal</Eyebrow>
+          <Reveal delay={0.1}>
+            <h1 className="mt-5 font-display text-5xl md:text-8xl font-light leading-[0.95] tracking-tightest">
+              Stories, tips &amp; <span className="serif-italic text-primary">signals.</span>
             </h1>
-            <p className="text-xl text-slate-300 max-w-2xl mx-auto">
-              Tips, insights, and stories about local services, beauty, and entrepreneurship.
+          </Reveal>
+          <Reveal delay={0.2}>
+            <p className="mt-6 max-w-2xl text-lg md:text-xl text-ink/60 leading-relaxed">
+              Field notes on local commerce, beauty, entrepreneurship, and the vendors making it all work in Lagos and beyond.
             </p>
-          </motion.div>
+          </Reveal>
 
           {/* Search */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="max-w-xl mx-auto mb-8"
-          >
-            <div className="relative">
+          <Reveal delay={0.3}>
+            <div className="mt-10 max-w-xl relative">
               <input
                 type="text"
-                placeholder="Search articles..."
+                placeholder="Search articles…"
                 value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value)
-                  setPage(1)
-                }}
-                className="w-full bg-slate-800/50 border border-slate-700 rounded-full px-6 py-4 text-white placeholder-slate-400 focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20"
+                onChange={(e) => { setSearchQuery(e.target.value); setPage(1) }}
+                className="field pr-12"
               />
-              <svg className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              <svg className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-ink/40" fill="none" stroke="currentColor" strokeWidth={1.75} viewBox="0 0 24 24">
+                <circle cx="11" cy="11" r="7" />
+                <path d="M21 21l-4.3-4.3" strokeLinecap="round" />
               </svg>
             </div>
-          </motion.div>
+          </Reveal>
+        </div>
+      </section>
 
-          {/* Categories */}
+      {/* Filters */}
+      <section className="px-6 lg:px-10">
+        <div className="max-w-7xl mx-auto space-y-4 pb-10 border-b border-line">
           {categories.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.3 }}
-              className="flex flex-wrap gap-3 justify-center mb-8"
-            >
-              <button
-                onClick={() => { setActiveCategory(''); setPage(1) }}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                  !activeCategory
-                    ? 'bg-primary text-white'
-                    : 'bg-slate-800/50 text-slate-300 hover:bg-slate-700/50'
-                }`}
-              >
-                All
-              </button>
-              {categories.map((cat) => (
-                <button
-                  key={cat}
-                  onClick={() => { setActiveCategory(cat); setPage(1) }}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                    activeCategory === cat
-                      ? 'bg-primary text-white'
-                      : 'bg-slate-800/50 text-slate-300 hover:bg-slate-700/50'
-                  }`}
+            <Reveal delay={0.1}>
+              <div className="flex flex-wrap gap-2">
+                <FilterPill
+                  active={!activeCategory}
+                  onClick={() => { setActiveCategory(''); setPage(1) }}
                 >
-                  {cat}
-                </button>
-              ))}
-            </motion.div>
+                  All
+                </FilterPill>
+                {categories.map((c) => (
+                  <FilterPill
+                    key={c}
+                    active={activeCategory === c}
+                    onClick={() => { setActiveCategory(c); setPage(1) }}
+                  >
+                    {c}
+                  </FilterPill>
+                ))}
+              </div>
+            </Reveal>
           )}
-
-          {/* Keywords */}
           {keywords.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.35 }}
-              className="flex flex-wrap gap-2 justify-center mb-12"
-            >
-              {keywords.slice(0, 15).map((kw) => (
-                <button
-                  key={kw}
-                  onClick={() => {
-                    setActiveKeyword(activeKeyword === kw ? '' : kw)
-                    setPage(1)
-                  }}
-                  className={`px-3 py-1 rounded-full text-xs font-medium transition-all border ${
-                    activeKeyword === kw
-                      ? 'border-primary text-primary bg-primary/10'
-                      : 'border-slate-700 text-slate-400 hover:border-slate-500'
-                  }`}
-                >
-                  #{kw}
-                </button>
-              ))}
-            </motion.div>
+            <Reveal delay={0.15}>
+              <div className="flex flex-wrap gap-2">
+                {keywords.slice(0, 15).map((k) => (
+                  <button
+                    key={k}
+                    onClick={() => { setActiveKeyword(activeKeyword === k ? '' : k); setPage(1) }}
+                    className={`text-xs px-3 py-1 rounded-full border transition-all ${
+                      activeKeyword === k
+                        ? 'bg-primary/10 border-primary/40 text-primary'
+                        : 'border-line text-ink/50 hover:border-ink/40 hover:text-ink'
+                    }`}
+                  >
+                    #{k}
+                  </button>
+                ))}
+              </div>
+            </Reveal>
           )}
         </div>
       </section>
 
-      {/* Blog Posts Grid */}
-      <section className="relative pb-20 px-6">
-        <div className="container mx-auto max-w-7xl relative z-10">
+      {/* Posts */}
+      <section className="py-16 px-6 lg:px-10">
+        <div className="max-w-7xl mx-auto">
           {loading ? (
-            <div className="flex justify-center py-20">
-              <div className="w-10 h-10 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
+            <div className="py-24 flex justify-center">
+              <div className="w-10 h-10 border-2 border-line border-t-ink rounded-full animate-spin" />
             </div>
           ) : posts.length === 0 ? (
-            <div className="text-center py-20">
-              <p className="text-slate-400 text-lg">No articles found. Check back soon!</p>
+            <div className="py-24 text-center">
+              <p className="font-display text-3xl text-ink/60">No articles yet.</p>
+              <p className="mt-3 text-ink/40">Check back soon — we publish weekly.</p>
             </div>
           ) : (
             <>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {posts.map((post, index) => (
+              {/* Featured */}
+              {featured && (
+                <Reveal>
+                  <Link href={`/blog/${featured.slug}`} className="group block mb-16">
+                    <div className="grid md:grid-cols-5 gap-8 items-center">
+                      <div className="md:col-span-3 aspect-[4/3] overflow-hidden rounded-3xl bg-canvas-soft border border-line relative">
+                        {featured.coverImage ? (
+                          <img
+                            src={featured.coverImage}
+                            alt={featured.title}
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-primary/40">
+                            <svg className="w-24 h-24" viewBox="0 0 24 24" fill="currentColor"><path d="M4 4h16v16H4z" opacity="0.1" /></svg>
+                          </div>
+                        )}
+                        <span className="absolute top-5 left-5 bg-ink text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full">Featured</span>
+                      </div>
+                      <div className="md:col-span-2">
+                        <p className="eyebrow mb-4">{featured.category} · {formatDate(featured.publishedAt)}</p>
+                        <h2 className="font-display text-3xl md:text-5xl font-light leading-tight tracking-tight group-hover:text-primary transition-colors">
+                          {featured.title}
+                        </h2>
+                        <p className="mt-5 text-ink/60 leading-relaxed">{featured.excerpt}</p>
+                        <div className="mt-6 flex items-center gap-3 text-sm text-ink/50">
+                          <span>{featured.author.firstName} {featured.author.lastName}</span>
+                          <span>·</span>
+                          <span>{featured.views} views</span>
+                        </div>
+                        <div className="mt-6 inline-flex items-center gap-2 text-sm font-semibold ulink">
+                          Read story
+                          <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M5 12h14M13 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                </Reveal>
+              )}
+
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-14">
+                {rest.map((post, i) => (
                   <motion.article
                     key={post._id}
                     initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    className="group"
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: '-50px' }}
+                    transition={{ delay: i * 0.05, duration: 0.6 }}
                   >
-                    <Link href={`/blog/${post.slug}`}>
-                      <div className="bg-slate-800/30 backdrop-blur-sm border border-slate-700/50 rounded-2xl overflow-hidden hover:border-primary/30 transition-all hover:shadow-lg hover:shadow-primary/10">
-                        {/* Cover Image */}
-                        <div className="relative h-48 overflow-hidden">
-                          {post.coverImage ? (
-                            <img
-                              src={post.coverImage}
-                              alt={post.title}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                            />
-                          ) : (
-                            <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary-light/20 flex items-center justify-center">
-                              <svg className="w-12 h-12 text-primary/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-                              </svg>
-                            </div>
-                          )}
-                          {post.isFeatured && (
-                            <span className="absolute top-3 left-3 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full">
-                              Featured
-                            </span>
-                          )}
-                          <span className="absolute top-3 right-3 bg-slate-900/70 text-white text-xs px-3 py-1 rounded-full backdrop-blur-sm">
-                            {post.category}
+                    <Link href={`/blog/${post.slug}`} className="group block">
+                      <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-canvas-soft border border-line">
+                        {post.coverImage ? (
+                          <img
+                            src={post.coverImage}
+                            alt={post.title}
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <span className="font-display text-5xl text-ink/10">lookreal</span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="mt-5">
+                        <p className="eyebrow mb-3">{post.category} · {formatDate(post.publishedAt)}</p>
+                        <h3 className="font-display text-2xl md:text-[1.75rem] font-normal leading-tight tracking-tight group-hover:text-primary transition-colors">
+                          {post.title}
+                        </h3>
+                        <p className="mt-3 text-sm text-ink/60 leading-relaxed line-clamp-3">{post.excerpt}</p>
+                        <div className="mt-4 flex items-center justify-between text-xs text-ink/40">
+                          <span>{post.author.firstName} {post.author.lastName}</span>
+                          <span className="flex items-center gap-3">
+                            <span>♥ {post.likesCount}</span>
+                            <span>💬 {post.commentsCount}</span>
                           </span>
-                        </div>
-
-                        {/* Content */}
-                        <div className="p-6">
-                          <h2 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors line-clamp-2">
-                            {post.title}
-                          </h2>
-                          <p className="text-slate-400 text-sm mb-4 line-clamp-3">
-                            {post.excerpt}
-                          </p>
-
-                          {/* Tags */}
-                          {post.tags.length > 0 && (
-                            <div className="flex flex-wrap gap-1.5 mb-4">
-                              {post.tags.slice(0, 3).map((tag) => (
-                                <span key={tag} className="text-xs text-primary/70 bg-primary/10 px-2 py-0.5 rounded-full">
-                                  #{tag}
-                                </span>
-                              ))}
-                            </div>
-                          )}
-
-                          {/* Meta */}
-                          <div className="flex items-center justify-between text-xs text-slate-500">
-                            <div className="flex items-center gap-2">
-                              {post.author.avatar ? (
-                                <img src={post.author.avatar} alt="" className="w-6 h-6 rounded-full" />
-                              ) : (
-                                <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-primary text-xs font-bold">
-                                  {post.author.firstName?.[0]}
-                                </div>
-                              )}
-                              <span>{post.author.firstName} {post.author.lastName}</span>
-                            </div>
-                            <span>{formatDate(post.publishedAt)}</span>
-                          </div>
-
-                          {/* Engagement */}
-                          <div className="flex items-center gap-4 mt-3 pt-3 border-t border-slate-700/50 text-xs text-slate-500">
-                            <span className="flex items-center gap-1">
-                              <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                                <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
-                              </svg>
-                              {post.views}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
-                              </svg>
-                              {post.likesCount}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clipRule="evenodd" />
-                              </svg>
-                              {post.commentsCount}
-                            </span>
-                          </div>
                         </div>
                       </div>
                     </Link>
@@ -356,38 +282,29 @@ export default function BlogPage() {
                 ))}
               </div>
 
-              {/* Pagination */}
               {pagination && pagination.totalPages > 1 && (
-                <div className="flex justify-center gap-3 mt-12">
-                  <button
-                    onClick={() => setPage(p => Math.max(1, p - 1))}
-                    disabled={!pagination.hasPrevPage}
-                    className="px-4 py-2 rounded-lg bg-slate-800/50 border border-slate-700 text-sm disabled:opacity-30 hover:border-primary/50 transition-colors"
-                  >
-                    Previous
-                  </button>
+                <div className="mt-20 flex justify-center items-center gap-2">
+                  <PageButton onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={!pagination.hasPrevPage}>
+                    ← Previous
+                  </PageButton>
                   {Array.from({ length: pagination.totalPages }, (_, i) => i + 1)
-                    .filter(p => Math.abs(p - page) <= 2)
-                    .map(p => (
+                    .filter((p) => Math.abs(p - page) <= 2)
+                    .map((p) => (
                       <button
                         key={p}
                         onClick={() => setPage(p)}
-                        className={`w-10 h-10 rounded-lg text-sm font-medium transition-all ${
+                        className={`w-10 h-10 rounded-full text-sm font-medium transition-all ${
                           p === page
-                            ? 'bg-primary text-white'
-                            : 'bg-slate-800/50 border border-slate-700 hover:border-primary/50'
+                            ? 'bg-ink text-white'
+                            : 'border border-line text-ink hover:border-ink'
                         }`}
                       >
                         {p}
                       </button>
                     ))}
-                  <button
-                    onClick={() => setPage(p => p + 1)}
-                    disabled={!pagination.hasNextPage}
-                    className="px-4 py-2 rounded-lg bg-slate-800/50 border border-slate-700 text-sm disabled:opacity-30 hover:border-primary/50 transition-colors"
-                  >
-                    Next
-                  </button>
+                  <PageButton onClick={() => setPage((p) => p + 1)} disabled={!pagination.hasNextPage}>
+                    Next →
+                  </PageButton>
                 </div>
               )}
             </>
@@ -395,12 +312,34 @@ export default function BlogPage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="relative border-t border-slate-800 py-12 px-6">
-        <div className="container mx-auto max-w-7xl relative z-10 text-center text-slate-500 text-sm">
-          <p>&copy; {new Date().getFullYear()} LookReal. All rights reserved.</p>
-        </div>
-      </footer>
+      <Footer />
     </main>
+  )
+}
+
+function FilterPill({ active, children, onClick }: { active: boolean; children: React.ReactNode; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`px-4 py-2 rounded-full text-sm font-medium transition-all border ${
+        active
+          ? 'bg-ink text-white border-ink'
+          : 'border-line text-ink/70 hover:border-ink hover:text-ink'
+      }`}
+    >
+      {children}
+    </button>
+  )
+}
+
+function PageButton({ onClick, disabled, children }: { onClick: () => void; disabled: boolean; children: React.ReactNode }) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className="px-4 py-2 rounded-full text-sm border border-line hover:border-ink hover:bg-ink hover:text-white disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-ink disabled:hover:border-line transition-colors"
+    >
+      {children}
+    </button>
   )
 }

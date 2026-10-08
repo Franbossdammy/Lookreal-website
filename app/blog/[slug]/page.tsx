@@ -1,31 +1,18 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
+import Nav from '../../_components/Nav'
+import Footer from '../../_components/Footer'
+import { Reveal } from '../../_components/Primitives'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.lookreal.com'
 
-interface Author {
-  firstName: string
-  lastName: string
-  avatar?: string
-}
-
-interface Comment {
-  _id: string
-  user: Author & { _id?: string }
-  content: string
-  isHidden: boolean
-  createdAt: string
-}
-
-interface Reaction {
-  user: string
-  type: 'like' | 'love' | 'insightful' | 'helpful'
-}
-
+interface Author { firstName: string; lastName: string; avatar?: string }
+interface Comment { _id: string; user: Author & { _id?: string }; content: string; isHidden: boolean; createdAt: string }
+interface Reaction { user: string; type: 'like' | 'love' | 'insightful' | 'helpful' }
 interface BlogPost {
   _id: string
   title: string
@@ -64,40 +51,47 @@ export default function BlogPostPage() {
   const [commentText, setCommentText] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
+  const [progress, setProgress] = useState(0)
 
   useEffect(() => {
     if (slug) fetchPost()
   }, [slug])
 
-  // Update page title and meta dynamically
   useEffect(() => {
-    if (post) {
-      document.title = post.metaTitle || `${post.title} | LookReal Blog`
-
-      const updateMeta = (name: string, content: string, property?: boolean) => {
-        const attr = property ? 'property' : 'name'
-        let el = document.querySelector(`meta[${attr}="${name}"]`)
-        if (!el) {
-          el = document.createElement('meta')
-          el.setAttribute(attr, name)
-          document.head.appendChild(el)
-        }
-        el.setAttribute('content', content)
-      }
-
-      updateMeta('description', post.metaDescription || post.excerpt)
-      updateMeta('keywords', post.keywords.join(', '))
-      updateMeta('og:title', post.metaTitle || post.title, true)
-      updateMeta('og:description', post.metaDescription || post.excerpt, true)
-      updateMeta('og:type', 'article', true)
-      if (post.coverImage) updateMeta('og:image', post.coverImage, true)
-      updateMeta('twitter:card', 'summary_large_image')
-      updateMeta('twitter:title', post.metaTitle || post.title)
-      updateMeta('twitter:description', post.metaDescription || post.excerpt)
-      updateMeta('article:published_time', post.publishedAt, true)
-      updateMeta('article:section', post.category, true)
-      post.tags.forEach((tag) => updateMeta('article:tag', tag, true))
+    const onScroll = () => {
+      const h = document.documentElement
+      const total = h.scrollHeight - h.clientHeight
+      setProgress(total > 0 ? (window.scrollY / total) * 100 : 0)
     }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  useEffect(() => {
+    if (!post) return
+    document.title = post.metaTitle || `${post.title} | LookReal Journal`
+    const updateMeta = (name: string, content: string, property?: boolean) => {
+      const attr = property ? 'property' : 'name'
+      let el = document.querySelector(`meta[${attr}="${name}"]`)
+      if (!el) {
+        el = document.createElement('meta')
+        el.setAttribute(attr, name)
+        document.head.appendChild(el)
+      }
+      el.setAttribute('content', content)
+    }
+    updateMeta('description', post.metaDescription || post.excerpt)
+    updateMeta('keywords', post.keywords.join(', '))
+    updateMeta('og:title', post.metaTitle || post.title, true)
+    updateMeta('og:description', post.metaDescription || post.excerpt, true)
+    updateMeta('og:type', 'article', true)
+    if (post.coverImage) updateMeta('og:image', post.coverImage, true)
+    updateMeta('twitter:card', 'summary_large_image')
+    updateMeta('twitter:title', post.metaTitle || post.title)
+    updateMeta('twitter:description', post.metaDescription || post.excerpt)
+    updateMeta('article:published_time', post.publishedAt, true)
+    updateMeta('article:section', post.category, true)
+    post.tags.forEach((tag) => updateMeta('article:tag', tag, true))
   }, [post])
 
   const fetchPost = async () => {
@@ -105,11 +99,8 @@ export default function BlogPostPage() {
     try {
       const res = await fetch(`${API_URL}/api/v1/blog/post/${slug}`)
       const data = await res.json()
-      if (data.success) {
-        setPost(data.data.post)
-      } else {
-        setError('Post not found')
-      }
+      if (data.success) setPost(data.data.post)
+      else setError('Post not found')
     } catch {
       setError('Failed to load article')
     } finally {
@@ -121,56 +112,32 @@ export default function BlogPostPage() {
     if (!post) return
     try {
       const token = localStorage.getItem('auth_token')
-      if (!token) {
-        alert('Please sign in to the LookReal app to react to posts.')
-        return
-      }
+      if (!token) { alert('Please sign in to the LookReal app to react.'); return }
       const res = await fetch(`${API_URL}/api/v1/blog/${post._id}/react`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ type }),
       })
       const data = await res.json()
-      if (data.success) {
-        setPost(prev => prev ? {
-          ...prev,
-          likesCount: data.data.likesCount,
-          reactions: data.data.reactions,
-        } : null)
-      }
+      if (data.success) setPost((prev) => prev ? { ...prev, likesCount: data.data.likesCount, reactions: data.data.reactions } : null)
     } catch {}
   }
 
   const handleComment = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!post || !commentText.trim()) return
-
     setSubmitting(true)
     try {
       const token = localStorage.getItem('auth_token')
-      if (!token) {
-        alert('Please sign in to the LookReal app to comment.')
-        setSubmitting(false)
-        return
-      }
+      if (!token) { alert('Please sign in to the LookReal app to comment.'); setSubmitting(false); return }
       const res = await fetch(`${API_URL}/api/v1/blog/${post._id}/comment`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ content: commentText }),
       })
       const data = await res.json()
       if (data.success) {
-        setPost(prev => prev ? {
-          ...prev,
-          comments: data.data.comments,
-          commentsCount: data.data.commentsCount,
-        } : null)
+        setPost((prev) => prev ? { ...prev, comments: data.data.comments, commentsCount: data.data.commentsCount } : null)
         setCommentText('')
       }
     } catch {} finally {
@@ -178,150 +145,110 @@ export default function BlogPostPage() {
     }
   }
 
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    })
-  }
-
-  const getReactionCount = (type: string) => {
-    return post?.reactions.filter(r => r.type === type).length || 0
-  }
+  const formatDate = (dateStr: string) => new Date(dateStr).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+  const getReactionCount = (type: string) => post?.reactions.filter((r) => r.type === type).length || 0
 
   if (loading) {
     return (
-      <main className="relative bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white min-h-screen flex items-center justify-center">
-        <div className="w-10 h-10 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
+      <main className="min-h-screen bg-canvas flex items-center justify-center">
+        <div className="w-10 h-10 border-2 border-line border-t-ink rounded-full animate-spin" />
       </main>
     )
   }
 
   if (error || !post) {
     return (
-      <main className="relative bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold mb-4">Article Not Found</h1>
-          <p className="text-slate-400 mb-6">{error || 'The article you are looking for does not exist.'}</p>
-          <Link href="/blog" className="text-primary hover:underline">Back to Blog</Link>
+      <main className="min-h-screen bg-canvas flex items-center justify-center px-6">
+        <div className="text-center max-w-md">
+          <p className="eyebrow mb-5">404</p>
+          <h1 className="font-display text-5xl md:text-6xl font-light tracking-tightest">Article not found</h1>
+          <p className="mt-5 text-ink/60">{error || 'The article you are looking for does not exist.'}</p>
+          <Link href="/blog" className="mt-8 inline-flex items-center gap-2 btn-pill btn-primary">← Back to Journal</Link>
         </div>
       </main>
     )
   }
 
   return (
-    <main className="relative bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white min-h-screen">
-      {/* Background */}
-      <div className="fixed inset-0 gradient-mesh pointer-events-none opacity-60" />
+    <main className="relative bg-canvas text-ink min-h-screen">
+      {/* Read progress */}
+      <div className="fixed top-0 inset-x-0 h-[2px] bg-line z-[60]">
+        <div className="h-full bg-primary origin-left transition-[width] duration-100" style={{ width: `${progress}%` }} />
+      </div>
 
-      {/* Navigation */}
-      <motion.nav
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-slate-950/80 border-b border-primary/20"
-      >
-        <div className="container mx-auto px-6 py-5 flex justify-between items-center max-w-7xl">
-          <Link href="/" className="flex items-center gap-3">
-            <img src="/assets/logo.png" alt="LookReal Logo" className="w-10 h-10 rounded-xl" />
-            <span className="text-2xl font-display font-bold">LookReal</span>
-          </Link>
-          <div className="hidden md:flex gap-8 items-center">
-            <Link href="/blog" className="text-primary font-medium">Blog</Link>
-            <Link href="/contact" className="hover:text-primary transition-colors font-medium">Contact</Link>
-            <motion.a
-              href="/#download"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="bg-gradient-to-r from-primary to-primary-light px-6 py-2.5 rounded-full font-semibold hover:shadow-lg hover:shadow-primary/50 transition-all"
-            >
-              Get Started
-            </motion.a>
-          </div>
-        </div>
-      </motion.nav>
+      <Nav
+        links={[
+          { href: '/#features', label: 'Features' },
+          { href: '/blog', label: 'Journal' },
+          { href: '/contact', label: 'Contact' },
+        ]}
+      />
 
-      {/* Article */}
-      <article className="relative pt-28 pb-20 px-6">
-        <div className="container mx-auto max-w-4xl relative z-10">
-          {/* Breadcrumb */}
-          <nav className="flex items-center gap-2 text-sm text-slate-400 mb-8">
-            <Link href="/" className="hover:text-white">Home</Link>
-            <span>/</span>
-            <Link href="/blog" className="hover:text-white">Blog</Link>
-            <span>/</span>
-            <span className="text-primary">{post.category}</span>
-          </nav>
+      <article className="relative pt-32 md:pt-40 pb-20 px-6 lg:px-10">
+        <div className="max-w-3xl mx-auto">
+          <Reveal>
+            <nav className="flex items-center gap-2 text-sm text-ink/50 mb-10">
+              <Link href="/" className="hover:text-ink transition-colors">Home</Link>
+              <span>/</span>
+              <Link href="/blog" className="hover:text-ink transition-colors">Journal</Link>
+              <span>/</span>
+              <span className="text-primary">{post.category}</span>
+            </nav>
+          </Reveal>
 
-          {/* Header */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
+          <Reveal delay={0.05}>
             {post.isFeatured && (
-              <span className="inline-block bg-primary text-white text-xs font-bold px-3 py-1 rounded-full mb-4">
+              <span className="inline-block bg-ink text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full mb-6">
                 Featured
               </span>
             )}
-            <h1 className="text-4xl md:text-5xl font-display font-bold mb-6 leading-tight">
+            <h1 className="font-display text-4xl md:text-6xl font-light leading-[1.05] tracking-tightest">
               {post.title}
             </h1>
+          </Reveal>
 
-            {/* Author & Meta */}
-            <div className="flex flex-wrap items-center gap-4 mb-8 text-sm text-slate-400">
-              <div className="flex items-center gap-2">
+          <Reveal delay={0.15}>
+            <div className="mt-8 flex flex-wrap items-center gap-5 text-sm text-ink/50">
+              <div className="flex items-center gap-2.5">
                 {post.author.avatar ? (
-                  <img src={post.author.avatar} alt="" className="w-8 h-8 rounded-full" />
+                  <img src={post.author.avatar} alt="" className="w-9 h-9 rounded-full border border-line" />
                 ) : (
-                  <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold">
+                  <div className="w-9 h-9 rounded-full bg-primary/10 border border-primary/20 text-primary font-semibold flex items-center justify-center">
                     {post.author.firstName?.[0]}
                   </div>
                 )}
-                <span className="text-white font-medium">
-                  {post.author.firstName} {post.author.lastName}
-                </span>
+                <span className="text-ink font-medium">{post.author.firstName} {post.author.lastName}</span>
               </div>
+              <span>·</span>
               <span>{formatDate(post.publishedAt)}</span>
+              <span>·</span>
               <span>{post.views} views</span>
-              <span>{post.likesCount} reactions</span>
-              <span>{post.commentsCount} comments</span>
             </div>
+          </Reveal>
 
-            {/* Cover Image */}
-            {post.coverImage && (
-              <div className="rounded-2xl overflow-hidden mb-10">
-                <img
-                  src={post.coverImage}
-                  alt={post.title}
-                  className="w-full max-h-[500px] object-cover"
-                />
+          {post.coverImage && (
+            <Reveal delay={0.25}>
+              <div className="mt-12 rounded-3xl overflow-hidden border border-line">
+                <img src={post.coverImage} alt={post.title} className="w-full max-h-[600px] object-cover" />
               </div>
-            )}
-          </motion.div>
+            </Reveal>
+          )}
 
-          {/* Content */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2 }}
-            className="prose prose-invert prose-lg max-w-none mb-12
-              prose-headings:font-display prose-headings:text-white
-              prose-p:text-slate-300 prose-p:leading-relaxed
-              prose-a:text-primary prose-a:no-underline hover:prose-a:underline
-              prose-strong:text-white
-              prose-ul:text-slate-300 prose-ol:text-slate-300
-              prose-blockquote:border-primary prose-blockquote:text-slate-400"
-            dangerouslySetInnerHTML={{ __html: post.content }}
-          />
+          <Reveal delay={0.3}>
+            <div
+              className="mt-14 prose-light"
+              dangerouslySetInnerHTML={{ __html: post.content }}
+            />
+          </Reveal>
 
-          {/* Tags & Keywords */}
-          <div className="border-t border-b border-slate-800 py-6 mb-10">
-            <div className="flex flex-wrap gap-2 mb-3">
+          {/* Tags */}
+          <div className="mt-16 pt-10 border-t border-line">
+            <div className="flex flex-wrap gap-2 mb-4">
               {post.tags.map((tag) => (
                 <Link
                   key={tag}
                   href={`/blog?tag=${tag}`}
-                  className="text-sm text-primary/70 bg-primary/10 px-3 py-1 rounded-full hover:bg-primary/20 transition-colors"
+                  className="text-xs text-ink/60 bg-canvas-soft border border-line px-3 py-1.5 rounded-full hover:border-ink/40 hover:text-ink transition-colors"
                 >
                   #{tag}
                 </Link>
@@ -333,7 +260,7 @@ export default function BlogPostPage() {
                   <Link
                     key={kw}
                     href={`/blog?keyword=${kw}`}
-                    className="text-xs text-slate-500 border border-slate-700 px-2 py-0.5 rounded-full hover:border-slate-500 transition-colors"
+                    className="text-[10px] text-ink/40 uppercase tracking-widest px-2 py-1 border border-transparent hover:border-line transition-colors rounded-full"
                   >
                     {kw}
                   </Link>
@@ -343,18 +270,18 @@ export default function BlogPostPage() {
           </div>
 
           {/* Reactions */}
-          <div className="mb-12">
-            <h3 className="text-lg font-bold mb-4">React to this article</h3>
-            <div className="flex flex-wrap gap-3">
+          <div className="mt-12">
+            <h3 className="font-display text-2xl mb-5 tracking-tight">React to this piece</h3>
+            <div className="flex flex-wrap gap-2">
               {(Object.keys(reactionEmojis) as Array<keyof typeof reactionEmojis>).map((type) => (
                 <button
                   key={type}
                   onClick={() => handleReaction(type)}
-                  className="flex items-center gap-2 bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700 hover:border-primary/30 rounded-full px-4 py-2 transition-all"
+                  className="flex items-center gap-2.5 bg-canvas-soft border border-line hover:border-ink/40 rounded-full px-4 py-2.5 transition-all hover:scale-[1.02]"
                 >
-                  <span className="text-lg">{reactionEmojis[type].emoji}</span>
+                  <span className="text-base">{reactionEmojis[type].emoji}</span>
                   <span className="text-sm font-medium">{reactionEmojis[type].label}</span>
-                  <span className="text-xs text-slate-400 bg-slate-900/50 rounded-full px-2 py-0.5">
+                  <span className="text-xs text-ink/50 bg-white border border-line rounded-full px-2 py-0.5 font-mono">
                     {getReactionCount(type)}
                   </span>
                 </button>
@@ -363,71 +290,63 @@ export default function BlogPostPage() {
           </div>
 
           {/* Comments */}
-          <div>
-            <h3 className="text-xl font-bold mb-6">
-              Comments ({post.commentsCount})
-            </h3>
+          <div className="mt-16 pt-10 border-t border-line">
+            <h3 className="font-display text-3xl mb-8 tracking-tight">Comments <span className="text-ink/30 font-mono text-xl">({post.commentsCount})</span></h3>
 
-            {/* Comment Form */}
-            <form onSubmit={handleComment} className="mb-8">
+            <form onSubmit={handleComment} className="mb-10">
               <textarea
                 value={commentText}
                 onChange={(e) => setCommentText(e.target.value)}
-                placeholder="Share your thoughts..."
+                placeholder="Share your thoughts…"
                 rows={3}
                 maxLength={2000}
-                className="w-full bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 resize-none"
+                className="field resize-none"
               />
-              <div className="flex justify-between items-center mt-2">
-                <span className="text-xs text-slate-500">{commentText.length}/2000</span>
+              <div className="mt-3 flex justify-between items-center">
+                <span className="text-xs text-ink/40 font-mono">{commentText.length}/2000</span>
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   type="submit"
                   disabled={!commentText.trim() || submitting}
-                  className="bg-gradient-to-r from-primary to-primary-light px-6 py-2 rounded-full font-semibold text-sm disabled:opacity-50 hover:shadow-lg hover:shadow-primary/50 transition-all"
+                  className="btn-pill btn-primary disabled:opacity-40"
                 >
-                  {submitting ? 'Posting...' : 'Post Comment'}
+                  {submitting ? 'Posting…' : 'Post Comment'}
                 </motion.button>
               </div>
             </form>
 
-            {/* Comment List */}
             <div className="space-y-6">
               {post.comments
-                .filter(c => !c.isHidden)
+                .filter((c) => !c.isHidden)
                 .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
                 .map((comment) => (
                   <motion.div
                     key={comment._id}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="bg-slate-800/30 border border-slate-700/50 rounded-xl p-4"
+                    className="bg-canvas-soft border border-line rounded-2xl p-5"
                   >
                     <div className="flex items-center gap-3 mb-3">
                       {comment.user.avatar ? (
-                        <img src={comment.user.avatar} alt="" className="w-8 h-8 rounded-full" />
+                        <img src={comment.user.avatar} alt="" className="w-8 h-8 rounded-full border border-line" />
                       ) : (
-                        <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary text-sm font-bold">
+                        <div className="w-8 h-8 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-semibold flex items-center justify-center">
                           {comment.user.firstName?.[0]}
                         </div>
                       )}
                       <div>
-                        <span className="font-medium text-sm">
-                          {comment.user.firstName} {comment.user.lastName}
-                        </span>
-                        <span className="text-xs text-slate-500 ml-2">
-                          {formatDate(comment.createdAt)}
-                        </span>
+                        <span className="font-medium text-sm">{comment.user.firstName} {comment.user.lastName}</span>
+                        <span className="text-xs text-ink/40 ml-2">{formatDate(comment.createdAt)}</span>
                       </div>
                     </div>
-                    <p className="text-slate-300 text-sm leading-relaxed">{comment.content}</p>
+                    <p className="text-sm text-ink/80 leading-relaxed">{comment.content}</p>
                   </motion.div>
                 ))}
 
-              {post.comments.filter(c => !c.isHidden).length === 0 && (
-                <p className="text-center text-slate-500 py-8">
-                  No comments yet. Be the first to share your thoughts!
+              {post.comments.filter((c) => !c.isHidden).length === 0 && (
+                <p className="text-center text-ink/40 py-10 border border-dashed border-line rounded-2xl">
+                  No comments yet. Be the first.
                 </p>
               )}
             </div>
@@ -435,7 +354,6 @@ export default function BlogPostPage() {
         </div>
       </article>
 
-      {/* Structured Data (JSON-LD) for SEO */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -445,43 +363,20 @@ export default function BlogPostPage() {
             headline: post.title,
             description: post.metaDescription || post.excerpt,
             image: post.coverImage,
-            author: {
-              '@type': 'Person',
-              name: `${post.author.firstName} ${post.author.lastName}`,
-            },
-            publisher: {
-              '@type': 'Organization',
-              name: 'LookReal',
-              logo: {
-                '@type': 'ImageObject',
-                url: 'https://lookreal.beauty/assets/logo.png',
-              },
-            },
+            author: { '@type': 'Person', name: `${post.author.firstName} ${post.author.lastName}` },
+            publisher: { '@type': 'Organization', name: 'LookReal', logo: { '@type': 'ImageObject', url: 'https://lookreal.beauty/assets/logo.png' } },
             datePublished: post.publishedAt,
             keywords: post.keywords.join(', '),
             articleSection: post.category,
             interactionStatistic: [
-              {
-                '@type': 'InteractionCounter',
-                interactionType: 'https://schema.org/LikeAction',
-                userInteractionCount: post.likesCount,
-              },
-              {
-                '@type': 'InteractionCounter',
-                interactionType: 'https://schema.org/CommentAction',
-                userInteractionCount: post.commentsCount,
-              },
+              { '@type': 'InteractionCounter', interactionType: 'https://schema.org/LikeAction', userInteractionCount: post.likesCount },
+              { '@type': 'InteractionCounter', interactionType: 'https://schema.org/CommentAction', userInteractionCount: post.commentsCount },
             ],
           }),
         }}
       />
 
-      {/* Footer */}
-      <footer className="relative border-t border-slate-800 py-12 px-6">
-        <div className="container mx-auto max-w-7xl relative z-10 text-center text-slate-500 text-sm">
-          <p>&copy; {new Date().getFullYear()} LookReal. All rights reserved.</p>
-        </div>
-      </footer>
+      <Footer />
     </main>
   )
 }

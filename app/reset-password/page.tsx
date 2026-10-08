@@ -1,10 +1,15 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { Suspense } from 'react'
+import Link from 'next/link'
+import { motion } from 'framer-motion'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.lookreal.com'
+
+function Spinner() {
+  return <div className="w-12 h-12 border-2 border-line border-t-ink rounded-full animate-spin" />
+}
 
 function ResetPasswordContent() {
   const searchParams = useSearchParams()
@@ -36,32 +41,19 @@ function ResetPasswordContent() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setValidationError('')
-
     const pwdError = validatePassword(password)
-    if (pwdError) {
-      setValidationError(pwdError)
-      return
-    }
-
-    if (password !== confirmPassword) {
-      setValidationError('Passwords do not match.')
-      return
-    }
-
+    if (pwdError) { setValidationError(pwdError); return }
+    if (password !== confirmPassword) { setValidationError('Passwords do not match.'); return }
     setStatus('loading')
-
     try {
       const res = await fetch(`${API_URL}/api/v1/auth/reset-password`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token, password, confirmPassword }),
       })
-
       const data = await res.json()
-
       if (res.ok && data.success) {
         setStatus('success')
-        setMessage('Your password has been reset successfully! You can now log in with your new password.')
+        setMessage('Your password has been reset. You can now log in with your new password.')
       } else {
         setStatus('form')
         setValidationError(data.message || 'Failed to reset password. The link may have expired.')
@@ -73,120 +65,114 @@ function ResetPasswordContent() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center px-4">
+    <main className="min-h-screen bg-canvas flex items-center justify-center px-5 py-16">
       <div className="w-full max-w-md">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-white" style={{ fontFamily: "'Righteous', sans-serif" }}>LookReal</h1>
-        </div>
+        <Link href="/" className="flex items-center justify-center gap-2.5 mb-10 group">
+          <img src="/assets/logo.png" alt="LookReal" className="w-9 h-9 rounded-xl transition-transform group-hover:scale-105" />
+          <span className="font-display text-xl tracking-tight">lookreal</span>
+        </Link>
 
-        <div className="bg-white rounded-2xl shadow-2xl p-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
+          className="bg-canvas-soft border border-line rounded-[2rem] p-8 md:p-10"
+        >
           {status === 'form' && (
             <>
-              <div className="text-center mb-6">
-                <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-8 h-8 text-[#CC0000]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <div className="text-center mb-7">
+                <div className="w-14 h-14 bg-white border border-line rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
                   </svg>
                 </div>
-                <h2 className="text-xl font-semibold text-gray-900">Reset Your Password</h2>
-                <p className="text-gray-500 text-sm mt-1">Enter your new password below</p>
+                <h1 className="font-display text-3xl font-light tracking-tightest">Reset your password</h1>
+                <p className="text-ink/50 text-sm mt-2">Enter a new password below.</p>
               </div>
 
-              <form onSubmit={handleSubmit}>
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-[11px] font-semibold uppercase tracking-widest mb-2 text-ink/60">New password</label>
                   <div className="relative">
                     <input
                       type={showPassword ? 'text' : 'password'}
                       value={password}
                       onChange={(e) => { setPassword(e.target.value); setValidationError('') }}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#CC0000] focus:border-transparent outline-none text-gray-900"
+                      className="field pr-11"
                       placeholder="Enter new password"
                       required
                     />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                    >
+                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-ink/40 hover:text-ink">
                       {showPassword ? (
-                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" /></svg>
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}><path strokeLinecap="round" strokeLinejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" /></svg>
                       ) : (
-                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                       )}
                     </button>
                   </div>
                 </div>
 
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+                <div>
+                  <label className="block text-[11px] font-semibold uppercase tracking-widest mb-2 text-ink/60">Confirm password</label>
                   <input
                     type={showPassword ? 'text' : 'password'}
                     value={confirmPassword}
                     onChange={(e) => { setConfirmPassword(e.target.value); setValidationError('') }}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#CC0000] focus:border-transparent outline-none text-gray-900"
+                    className="field"
                     placeholder="Confirm new password"
                     required
                   />
                 </div>
 
                 {validationError && (
-                  <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                    <p className="text-sm text-[#CC0000]">{validationError}</p>
+                  <div className="p-3 bg-red-50 border border-red-200 rounded-xl">
+                    <p className="text-sm text-red-700">{validationError}</p>
                   </div>
                 )}
 
-                <button
-                  type="submit"
-                  className="w-full py-3 bg-[#CC0000] text-white font-semibold rounded-lg hover:bg-[#aa0000] transition-colors"
-                >
-                  Reset Password
-                </button>
+                <motion.button whileHover={{ y: -2 }} whileTap={{ scale: 0.98 }} type="submit" className="btn-pill btn-primary w-full py-4 mt-2">
+                  Reset password
+                </motion.button>
               </form>
 
-              <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-                <p className="text-xs text-gray-500">Password must be at least 8 characters with 1 uppercase, 1 lowercase, 1 number, and 1 special character.</p>
+              <div className="mt-5 p-4 bg-white border border-line rounded-xl">
+                <p className="text-xs text-ink/50 leading-relaxed">
+                  <span className="font-semibold text-ink">Password rules —</span> Minimum 8 characters, 1 uppercase, 1 lowercase, 1 number, 1 special character.
+                </p>
               </div>
             </>
           )}
 
           {status === 'loading' && (
-            <div className="text-center py-8">
-              <div className="w-16 h-16 border-4 border-gray-200 border-t-[#CC0000] rounded-full animate-spin mx-auto mb-4" />
-              <h2 className="text-xl font-semibold text-gray-900 mb-2">Resetting Password</h2>
-              <p className="text-gray-500">Please wait...</p>
+            <div className="text-center py-10">
+              <div className="w-14 h-14 border-2 border-line border-t-ink rounded-full animate-spin mx-auto mb-5" />
+              <h2 className="font-display text-2xl font-light">Resetting password…</h2>
+              <p className="text-ink/50 text-sm mt-2">Please wait.</p>
             </div>
           )}
 
           {status === 'success' && (
-            <div className="text-center py-4">
-              <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-10 h-10 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-2">Password Reset!</h2>
-              <p className="text-gray-600 mb-6">{message}</p>
-              <p className="text-sm text-gray-500">You can now close this page and open the LookReal app to log in.</p>
+            <div className="text-center py-6">
+              <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', damping: 14 }} className="w-16 h-16 bg-emerald-50 border border-emerald-200 rounded-full flex items-center justify-center mx-auto mb-5">
+                <svg className="w-8 h-8 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+              </motion.div>
+              <h2 className="font-display text-3xl font-light tracking-tightest mb-3">Password reset.</h2>
+              <p className="text-ink/70 mb-5">{message}</p>
+              <p className="text-sm text-ink/40">You can now close this page and open the LookReal app to log in.</p>
             </div>
           )}
 
           {status === 'error' && (
-            <div className="text-center py-4">
-              <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-10 h-10 text-[#CC0000]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
+            <div className="text-center py-6">
+              <div className="w-16 h-16 bg-red-50 border border-red-200 rounded-full flex items-center justify-center mx-auto mb-5">
+                <svg className="w-8 h-8 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
               </div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-2">Invalid Link</h2>
-              <p className="text-gray-600 mb-6">{message}</p>
-              <p className="text-sm text-gray-500">Please open the LookReal app and request a new password reset.</p>
+              <h2 className="font-display text-3xl font-light tracking-tightest mb-3">Invalid link.</h2>
+              <p className="text-ink/70 mb-5">{message}</p>
+              <p className="text-sm text-ink/40">Open the LookReal app and request a new password reset.</p>
             </div>
           )}
-        </div>
+        </motion.div>
 
-        <p className="text-center text-gray-500 text-sm mt-6">&copy; {new Date().getFullYear()} LookReal. All rights reserved.</p>
+        <p className="text-center text-xs text-ink/40 mt-6">© {new Date().getFullYear()} LookReal</p>
       </div>
     </main>
   )
@@ -194,11 +180,7 @@ function ResetPasswordContent() {
 
 export default function ResetPasswordPage() {
   return (
-    <Suspense fallback={
-      <main className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
-        <div className="w-16 h-16 border-4 border-gray-200 border-t-[#CC0000] rounded-full animate-spin" />
-      </main>
-    }>
+    <Suspense fallback={<main className="min-h-screen flex items-center justify-center bg-canvas"><Spinner /></main>}>
       <ResetPasswordContent />
     </Suspense>
   )
